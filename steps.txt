@@ -1,0 +1,89 @@
+1. Software Installation
+------------------------
+- Download and install Python (3.9+) from https://www.python.org/downloads/
+- Ensure you check the box "Add Python to PATH" during installation.
+
+2. Python Installation
+----------------------
+- Verify installation by opening Terminal/Command Prompt and typing:
+  python --version
+
+3. Virtual Environment Setup
+----------------------------
+- Open Terminal/Command Prompt in your project directory (GenAI-Cafe).
+- Create a virtual environment:
+  python -m venv venv
+- Activate it:
+  Windows: venv\Scripts\activate
+  Mac/Linux: source venv/bin/activate
+
+4. Flask & Dependency Installation
+----------------------------------
+- Install all required libraries:
+  pip install -r requirements.txt
+
+5. Database Setup & SQLAlchemy Configuration
+--------------------------------------------
+- The application uses SQLite by default for easy setup, managed by SQLAlchemy.
+- Database configurations are handled in `config.py` and `app.py`.
+- Run the app once to auto-create the database:
+  python app.py
+
+6. Authentication Implementation
+--------------------------------
+- Flask-Login and Flask-Bcrypt manage user sessions and password hashing securely.
+- Handled in `routes/auth.py`.
+
+7. Frontend Creation
+--------------------
+- UI is built using HTML5, Jinja2 templating, and Tailwind CSS (via CDN).
+- Templates are located in the `templates/` folder.
+
+8. AI Recommendation System Setup
+---------------------------------
+- Generative AI simulation is located in `services/ai_recommender.py`.
+- It currently uses a rule-based mapping, ready to be replaced with the OpenAI API.
+
+9. Machine Learning Model Creation & Demand Prediction
+------------------------------------------------------
+- Random Forest Regressor implementation is located in `ml/trainer.py`.
+- The predictor `ml/demand_predictor.py` forecasts customer demand and inventory needs based on historical data patterns.
+- Train the model by running: python -m ml.trainer
+
+10. Admin Dashboard Implementation
+----------------------------------
+- View predictions, bookings, and users in the Admin panel.
+- Route: `/admin/dashboard`
+- Note: You must register a user and manually change their role to 'Admin' in the database (or code) for initial access.
+
+11. Security Implementation
+---------------------------
+- CSRF Protection (via Flask-WTF if forms added).
+- Password Hashing (Bcrypt).
+- SQL Injection Prevention (SQLAlchemy ORM handles this).
+
+12. Testing Process
+-------------------
+- Run `python app.py`.
+- Open `http://localhost:5000` in your browser.
+- Create an account, book a table, test the AI Assistant.
+
+13. Deployment Process
+----------------------
+- Use a production WSGI server like Gunicorn.
+  pip install gunicorn
+  gunicorn -w 4 app:app
+
+14. Production Configuration
+----------------------------
+- Set `FLASK_ENV=production` and replace the SQLite database URL with a PostgreSQL/MySQL connection string in environment variables.
+
+15. Weekly Retraining Setup
+---------------------------
+- Handled by APScheduler in `services/scheduler.py`.
+- It runs a background task every Sunday at 2 AM to retrain the ML model.
+
+16. Backup and Maintenance Process
+----------------------------------
+- Periodically dump your database using database management tools.
+- Monitor log files for ML prediction drifts.

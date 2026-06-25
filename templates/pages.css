@@ -1,0 +1,642 @@
+/* ═══════════════════════════════════════════════════════════════
+   HRD DESIGN SYSTEM — pages.css
+   Page-specific styles for: About, Menu, Booking, Contact,
+   Dashboard (Customer & Admin), Login/Register.
+
+   You can keep these in one file or split them into
+   about.css, menu.css, booking.css etc. — your choice.
+   Always load theme.css → components.css → this file.
+═══════════════════════════════════════════════════════════════ */
+
+
+/* ════════════════════════════════════════════════════════════
+   ABOUT PAGE
+   Template: about.html
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+.about-page .about-split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  min-height: 80vh;
+}
+.about-page .about-left {
+  background: var(--ink);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 100px 72px; position: relative; overflow: hidden;
+}
+.about-page .about-left::before {
+  content: '';
+  position: absolute; top: -80px; left: -60px;
+  width: 350px; height: 350px; border-radius: 50%;
+  background: var(--olive); opacity: 0.12;
+}
+.about-page .about-number {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.30em;
+  text-transform: uppercase; color: rgba(245, 240, 230, 0.35);
+  margin-bottom: 32px;
+}
+.about-page .about-headline {
+  font-family: var(--serif); font-size: var(--h2);
+  font-weight: 700; line-height: 1.08;
+  color: var(--cream); margin-bottom: 28px;
+}
+.about-page .about-headline em { color: var(--sage); font-style: italic; }
+.about-page .about-body {
+  font-size: 15px; line-height: 1.80;
+  color: rgba(245, 240, 230, 0.55);
+  max-width: 360px; margin-bottom: 44px;
+}
+
+/* Right side info tiles */
+.about-page .about-right {
+  background: var(--fog);
+  display: grid; grid-template-rows: 1fr 1fr; gap: 1px;
+}
+.about-page .about-tile {
+  padding: 56px 64px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  position: relative; overflow: hidden;
+  background: var(--fog);
+}
+.about-page .about-tile-b { background: var(--cream); }
+.about-page .tile-icon { font-size: 42px; margin-bottom: 18px; display: block; }
+.about-page .tile-h {
+  font-family: var(--serif); font-size: 22px; font-weight: 700;
+  color: var(--ink); margin-bottom: 8px;
+}
+.about-page .tile-p {
+  font-size: 13px; line-height: 1.70; color: var(--ink-45); max-width: 280px;
+}
+.about-page .tile-tag {
+  position: absolute; top: 24px; right: 24px;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--ink-30); border: 1px solid rgba(28, 26, 20, 0.14); padding: 5px 10px;
+}
+
+/* Team section */
+.about-page .team-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+}
+.about-page .team-card {
+  background: var(--fog); padding: 48px 40px;
+  transition: background 0.3s;
+}
+.about-page .team-card:hover { background: var(--sand); }
+.about-page .team-avatar {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: var(--olive); display: flex; align-items: center;
+  justify-content: center; font-size: 32px;
+  margin-bottom: 20px;
+}
+.about-page .team-name {
+  font-family: var(--serif); font-size: 20px; font-weight: 700;
+  color: var(--ink); margin-bottom: 4px;
+}
+.about-page .team-role {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--olive); margin-bottom: 16px;
+}
+.about-page .team-bio { font-size: 13px; line-height: 1.70; color: var(--ink-45); }
+
+@media (max-width: 1024px) {
+  .about-page .about-split { grid-template-columns: 1fr; }
+  .about-page .about-right { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+  .about-page .team-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .about-page .about-left { padding: 60px 32px; }
+  .about-page .about-tile { padding: 40px 32px; }
+  .about-page .team-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   MENU PAGE
+   Template: menu.html
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+/* Category filter tabs */
+.menu-page .menu-filters {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 56px;
+}
+.menu-page .filter-tab {
+  font-family: var(--mono); font-size: 9.5px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  padding: 10px 20px; border-radius: 20px;
+  border: 1px solid rgba(28, 26, 20, 0.20);
+  background: transparent; color: var(--ink-45);
+  cursor: pointer; transition: all 0.25s;
+}
+.menu-page .filter-tab:hover,
+.menu-page .filter-tab.active {
+  background: var(--olive); color: var(--cream); border-color: var(--olive);
+}
+
+/* Menu item grid */
+.menu-page .menu-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+}
+
+/* Menu card (reuses prod-card pattern) */
+.menu-page .menu-card {
+  cursor: pointer; overflow: hidden; position: relative;
+  background: var(--fog); transition: transform 0.3s var(--ease);
+}
+.menu-page .menu-card:hover { transform: translateY(-4px); }
+.menu-page .menu-card-top {
+  aspect-ratio: 3/4; display: flex; align-items: center;
+  justify-content: center; position: relative; overflow: hidden;
+}
+.menu-page .menu-card-top--olive  { background: linear-gradient(160deg, #4a5c3a 0%, #2e3d22 100%); }
+.menu-page .menu-card-top--amber  { background: linear-gradient(160deg, #c8602a 0%, #8c3a14 100%); }
+.menu-page .menu-card-top--yellow { background: linear-gradient(160deg, #c9a227 0%, #8c6c10 100%); }
+.menu-page .menu-card-top--clay   { background: linear-gradient(160deg, #9e3d28 0%, #6b2418 100%); }
+.menu-page .menu-card-emoji {
+  font-size: 72px;
+  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.25));
+  transition: transform 0.5s var(--ease);
+}
+.menu-page .menu-card:hover .menu-card-emoji { transform: scale(1.08) translateY(-6px); }
+.menu-page .menu-card-bottom {
+  padding: 28px 32px 32px;
+  background: var(--cream); border-top: 3px solid var(--olive);
+}
+.menu-page .menu-card-bottom--amber  { border-top-color: var(--amber); }
+.menu-page .menu-card-bottom--yellow { border-top-color: var(--yellow); }
+.menu-page .menu-card-bottom--clay   { border-top-color: var(--clay); }
+.menu-page .menu-item-name {
+  font-family: var(--serif); font-size: 22px; font-weight: 700;
+  color: var(--ink); margin-bottom: 6px;
+}
+.menu-page .menu-item-desc {
+  font-size: 13px; line-height: 1.65; color: var(--ink-45); margin-bottom: 20px;
+}
+.menu-page .menu-item-footer {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.menu-page .menu-item-price {
+  font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink);
+}
+
+@media (max-width: 1024px) {
+  .menu-page .menu-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .menu-page .menu-grid { grid-template-columns: 1fr; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   BOOKING PAGE
+   Template: booking.html  (or book_slot.html)
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+.booking-page .booking-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  min-height: calc(100vh - 56px);
+}
+
+/* Left: decorative panel */
+.booking-page .booking-panel {
+  background: var(--ink);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 64px; position: relative; overflow: hidden;
+}
+.booking-page .booking-panel::before {
+  content: '';
+  position: absolute; top: -80px; left: -60px;
+  width: 350px; height: 350px; border-radius: 50%;
+  background: var(--olive); opacity: 0.12;
+}
+.booking-page .booking-panel-eyebrow {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.30em;
+  text-transform: uppercase; color: rgba(245, 240, 230, 0.35); margin-bottom: 24px;
+}
+.booking-page .booking-panel-title {
+  font-family: var(--serif); font-size: clamp(36px, 3.5vw, 56px);
+  font-weight: 700; line-height: 1.08; color: var(--cream); margin-bottom: 24px;
+}
+.booking-page .booking-panel-title em { color: var(--sage); font-style: italic; }
+.booking-page .booking-panel-body {
+  font-size: 15px; line-height: 1.80; color: var(--cream-55); max-width: 360px;
+}
+.booking-page .booking-panel-perks {
+  margin-top: 48px; display: flex; flex-direction: column; gap: 16px;
+}
+.booking-page .perk-row {
+  display: flex; align-items: center; gap: 14px;
+  font-size: 13px; color: var(--cream-70);
+}
+.booking-page .perk-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(245, 240, 230, 0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+
+/* Right: form panel */
+.booking-page .booking-form-wrap {
+  background: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  padding: 80px 72px;
+}
+.booking-page .booking-form {
+  width: 100%; max-width: 480px;
+}
+.booking-page .booking-form-title {
+  font-family: var(--serif); font-size: 32px; font-weight: 700;
+  color: var(--ink); margin-bottom: 8px;
+}
+.booking-page .booking-form-sub {
+  font-size: 13px; color: var(--ink-45); margin-bottom: 40px; line-height: 1.6;
+}
+
+/* Date/time picker overrides */
+.booking-page .form-input[type="date"],
+.booking-page .form-input[type="time"] { cursor: pointer; }
+
+/* Slot selector (radio buttons styled as pill buttons) */
+.booking-page .slot-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px;
+}
+.booking-page .slot-option { position: relative; }
+.booking-page .slot-option input[type="radio"] {
+  position: absolute; opacity: 0; width: 0; height: 0;
+}
+.booking-page .slot-label {
+  display: block; padding: 10px 8px; text-align: center;
+  border: 1px solid var(--sand); border-radius: var(--r);
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--ink-45);
+  cursor: pointer; transition: all 0.25s;
+}
+.booking-page .slot-option input:checked + .slot-label {
+  background: var(--olive); color: var(--cream); border-color: var(--olive);
+}
+.booking-page .slot-label:hover { border-color: var(--olive); color: var(--olive); }
+.booking-page .slot-label.disabled { opacity: 0.35; pointer-events: none; }
+
+@media (max-width: 1024px) {
+  .booking-page .booking-wrap { grid-template-columns: 1fr; }
+  .booking-page .booking-panel { padding: 60px 40px; min-height: 340px; }
+}
+@media (max-width: 768px) {
+  .booking-page .booking-form-wrap { padding: 48px 24px; }
+  .booking-page .slot-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   CONTACT PAGE
+   Template: contact.html
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+.contact-page .contact-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+}
+.contact-page .contact-info {
+  background: var(--fog);
+  padding: 100px 72px; display: flex; flex-direction: column; justify-content: center;
+}
+.contact-page .contact-info-title {
+  font-family: var(--serif); font-size: var(--h2);
+  font-weight: 700; color: var(--ink); margin-bottom: 24px;
+}
+.contact-page .contact-info-title em { color: var(--amber); font-style: italic; }
+.contact-page .contact-info-body {
+  font-size: 15px; line-height: 1.80; color: var(--ink-60);
+  max-width: 360px; margin-bottom: 48px;
+}
+.contact-page .contact-detail {
+  display: flex; align-items: flex-start; gap: 16px; margin-bottom: 24px;
+}
+.contact-page .contact-detail-icon {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--cream); border: 1px solid var(--sand);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.contact-page .contact-detail-label {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--olive); margin-bottom: 4px;
+}
+.contact-page .contact-detail-value {
+  font-size: 14px; color: var(--ink); line-height: 1.5;
+}
+
+.contact-page .contact-form-wrap {
+  background: var(--cream);
+  padding: 100px 72px; display: flex; align-items: center;
+}
+.contact-page .contact-form { width: 100%; max-width: 480px; }
+.contact-page .contact-form-title {
+  font-family: var(--serif); font-size: 32px; font-weight: 700;
+  color: var(--ink); margin-bottom: 8px;
+}
+.contact-page .contact-form-sub {
+  font-size: 13px; color: var(--ink-45); margin-bottom: 40px; line-height: 1.6;
+}
+
+@media (max-width: 1024px) {
+  .contact-page .contact-wrap { grid-template-columns: 1fr; }
+  .contact-page .contact-info,
+  .contact-page .contact-form-wrap { padding: 60px 40px; }
+}
+@media (max-width: 768px) {
+  .contact-page .contact-info,
+  .contact-page .contact-form-wrap { padding: 48px 24px; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   LOGIN / REGISTER PAGE
+   Template: login.html, register.html
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+.auth-page {
+  min-height: 100vh;
+  display: grid; grid-template-columns: 1fr 1fr;
+}
+
+/* Left: brand panel */
+.auth-page .auth-brand {
+  background: var(--ink);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 80px 64px; position: relative; overflow: hidden;
+}
+.auth-page .auth-brand::before {
+  content: '';
+  position: absolute; top: -80px; left: -60px;
+  width: 350px; height: 350px; border-radius: 50%;
+  background: var(--olive); opacity: 0.12;
+}
+.auth-page .auth-brand-mark {
+  font-family: var(--serif); font-size: 28px; font-weight: 700;
+  color: var(--cream); letter-spacing: 0.06em; margin-bottom: 48px;
+}
+.auth-page .auth-brand-mark em { color: var(--sage); font-style: italic; }
+.auth-page .auth-brand-headline {
+  font-family: var(--serif); font-size: clamp(36px, 3.5vw, 52px);
+  font-weight: 700; line-height: 1.10; color: var(--cream); margin-bottom: 20px;
+}
+.auth-page .auth-brand-headline em { color: var(--sage); font-style: italic; }
+.auth-page .auth-brand-body {
+  font-size: 14px; line-height: 1.80; color: var(--cream-55); max-width: 340px;
+}
+
+/* Right: form panel */
+.auth-page .auth-form-wrap {
+  background: var(--cream);
+  display: flex; align-items: center; justify-content: center;
+  padding: 80px 64px;
+}
+.auth-page .auth-form { width: 100%; max-width: 400px; }
+.auth-page .auth-form-title {
+  font-family: var(--serif); font-size: 32px; font-weight: 700;
+  color: var(--ink); margin-bottom: 8px;
+}
+.auth-page .auth-form-sub {
+  font-size: 13px; color: var(--ink-45); margin-bottom: 40px; line-height: 1.6;
+}
+.auth-page .auth-switch {
+  font-size: 12px; color: var(--ink-45); margin-top: 24px; text-align: center;
+}
+.auth-page .auth-switch a {
+  color: var(--olive); border-bottom: 1px solid rgba(74, 92, 58, 0.30);
+  transition: border-color 0.25s;
+}
+.auth-page .auth-switch a:hover { border-color: var(--olive); }
+
+@media (max-width: 1024px) {
+  .auth-page { grid-template-columns: 1fr; }
+  .auth-page .auth-brand { min-height: 320px; padding: 60px 40px; }
+  .auth-page .auth-form-wrap { padding: 60px 40px; }
+}
+@media (max-width: 768px) {
+  .auth-page .auth-brand { display: none; } /* Hide brand on mobile, keep form */
+  .auth-page .auth-form-wrap { padding: 48px 24px; min-height: 100vh; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   CUSTOMER DASHBOARD
+   Template: customer/dashboard.html
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+.dashboard-page {
+  padding: 48px 0;
+  background: var(--fog);
+  min-height: 100vh;
+}
+.dashboard-page .dash-header {
+  margin-bottom: 48px;
+}
+.dashboard-page .dash-greeting {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--olive); margin-bottom: 8px;
+}
+.dashboard-page .dash-title {
+  font-family: var(--serif); font-size: clamp(32px, 3vw, 46px);
+  font-weight: 700; color: var(--ink); margin-bottom: 4px;
+}
+.dashboard-page .dash-sub {
+  font-size: 13px; color: var(--ink-45);
+}
+
+/* KPI strip */
+.dashboard-page .kpi-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+  margin-bottom: 40px;
+}
+
+/* Upcoming bookings */
+.dashboard-page .dash-section-title {
+  font-family: var(--serif); font-size: 24px; font-weight: 700;
+  color: var(--ink); margin-bottom: 24px;
+}
+.dashboard-page .booking-row {
+  display: grid; grid-template-columns: auto 1fr auto auto; gap: 20px;
+  align-items: center; padding: 20px 24px;
+  background: var(--cream); margin-bottom: 2px;
+  border-left: 3px solid transparent;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.dashboard-page .booking-row:hover { border-left-color: var(--olive); transform: translateX(3px); }
+.dashboard-page .booking-date-box {
+  width: 52px; height: 52px; border-radius: var(--r);
+  background: var(--fog); border: 1px solid var(--sand);
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; flex-shrink: 0;
+}
+.dashboard-page .booking-day {
+  font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink);
+  line-height: 1;
+}
+.dashboard-page .booking-month {
+  font-family: var(--mono); font-size: 7px; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--ink-45); margin-top: 2px;
+}
+.dashboard-page .booking-details { display: flex; flex-direction: column; gap: 4px; }
+.dashboard-page .booking-name {
+  font-size: 14px; font-weight: 500; color: var(--ink);
+}
+.dashboard-page .booking-time {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+  color: var(--ink-45);
+}
+
+@media (max-width: 1024px) {
+  .dashboard-page .kpi-strip { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-page .booking-row { grid-template-columns: auto 1fr; }
+}
+@media (max-width: 768px) {
+  .dashboard-page { padding: 32px 0; }
+  .dashboard-page .kpi-strip { grid-template-columns: 1fr 1fr; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   ADMIN DASHBOARD
+   Template: admin/dashboard.html
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+.admin-page {
+  background: var(--fog); min-height: 100vh; padding: 48px 0;
+}
+.admin-page .admin-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 40px; flex-wrap: wrap; gap: 16px;
+}
+.admin-page .admin-title {
+  font-family: var(--serif); font-size: clamp(28px, 2.8vw, 40px);
+  font-weight: 700; color: var(--ink);
+}
+.admin-page .admin-actions { display: flex; gap: 12px; }
+
+/* Admin card wrapper */
+.admin-page .admin-card {
+  background: var(--cream); border-radius: var(--r-card);
+  overflow: hidden; margin-bottom: 24px;
+}
+.admin-page .admin-card-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--fog);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.admin-page .admin-card-title {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.25em;
+  text-transform: uppercase; color: var(--olive);
+}
+.admin-page .admin-card-body { padding: 0; } /* table goes flush */
+
+/* Chart area placeholder */
+.admin-page .chart-area {
+  padding: 32px 28px; min-height: 240px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .admin-page { padding: 24px 0; }
+  .admin-page .admin-toolbar { flex-direction: column; align-items: flex-start; }
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   AI ASSISTANT PAGE
+   Template: ai_assistant.html
+   extends base.html
+════════════════════════════════════════════════════════════ */
+
+.ai-page {
+  display: grid; grid-template-columns: 300px 1fr;
+  min-height: 100vh;
+}
+.ai-page .ai-sidebar {
+  background: var(--ink); padding: 48px 32px;
+  border-right: 1px solid rgba(245, 240, 230, 0.06);
+}
+.ai-page .ai-sidebar-title {
+  font-family: var(--serif); font-size: 22px; font-weight: 700;
+  color: var(--cream); margin-bottom: 8px;
+}
+.ai-page .ai-sidebar-sub {
+  font-size: 12px; color: var(--cream-55); line-height: 1.6; margin-bottom: 36px;
+}
+.ai-page .ai-suggestion {
+  padding: 14px 16px; border-radius: var(--r);
+  border: 1px solid rgba(245, 240, 230, 0.10);
+  margin-bottom: 8px; cursor: pointer;
+  font-size: 13px; color: var(--cream-70);
+  transition: background 0.25s, color 0.25s;
+}
+.ai-page .ai-suggestion:hover {
+  background: rgba(245, 240, 230, 0.08); color: var(--cream);
+}
+
+.ai-page .ai-chat {
+  display: flex; flex-direction: column;
+  background: var(--cream);
+}
+.ai-page .ai-messages {
+  flex: 1; overflow-y: auto;
+  padding: 48px 64px; display: flex; flex-direction: column; gap: 24px;
+}
+.ai-page .ai-message { display: flex; gap: 14px; align-items: flex-start; }
+.ai-page .ai-message--user { flex-direction: row-reverse; }
+.ai-page .ai-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+}
+.ai-page .ai-avatar--bot { background: var(--olive); }
+.ai-page .ai-avatar--user { background: var(--fog); border: 1px solid var(--sand); }
+.ai-page .ai-bubble {
+  max-width: 540px; padding: 16px 20px; border-radius: var(--r-pill);
+  font-size: 14px; line-height: 1.65;
+}
+.ai-page .ai-bubble--bot {
+  background: var(--fog); color: var(--ink);
+  border-radius: 2px var(--r-pill) var(--r-pill) var(--r-pill);
+}
+.ai-page .ai-bubble--user {
+  background: var(--olive); color: var(--cream);
+  border-radius: var(--r-pill) 2px var(--r-pill) var(--r-pill);
+}
+.ai-page .ai-input-bar {
+  padding: 24px 64px;
+  border-top: 1px solid var(--fog);
+  display: flex; gap: 12px;
+}
+.ai-page .ai-input {
+  flex: 1; padding: 14px 20px;
+  background: var(--fog); border: 1px solid transparent;
+  border-radius: var(--r-pill); outline: none;
+  font-family: var(--sans); font-size: 14px; color: var(--ink);
+  transition: border-color 0.25s;
+}
+.ai-page .ai-input:focus { border-color: var(--olive); }
+.ai-page .ai-send {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--olive); color: var(--cream);
+  border: none; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; transition: background 0.25s, transform 0.25s;
+}
+.ai-page .ai-send:hover { background: var(--ink); transform: scale(1.08); }
+
+@media (max-width: 1024px) {
+  .ai-page { grid-template-columns: 1fr; }
+  .ai-page .ai-sidebar { display: none; }
+}
+@media (max-width: 768px) {
+  .ai-page .ai-messages { padding: 24px 20px; }
+  .ai-page .ai-input-bar { padding: 16px 20px; }
+}

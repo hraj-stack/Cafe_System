@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- HRD Home Hero -->
+<section class="section" style="min-height: 80vh; display: flex; align-items: center; position: relative; overflow: hidden; padding: 120px 0;">
+  <!-- Organic background shapes (blobs) similar to landing page -->
+  <div style="position: absolute; inset: 0; z-index: 0; pointer-events: none;">
+    <div class="blob blob-1" style="position: absolute; width: 500px; height: 500px; background: var(--olive); top: -80px; right: 8%; opacity: 0.08; border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;"></div>
+    <div class="blob blob-2" style="position: absolute; width: 360px; height: 360px; background: var(--amber); bottom: 10%; left: 4%; opacity: 0.08; border-radius: 50% 30% 60% 40% / 40% 55% 45% 60%;"></div>
+  </div>
+
+  <div class="container" style="position: relative; z-index: 10; text-align: center; max-width: 800px; margin: 0 auto;">
+    <div class="section-eyebrow" style="justify-content: center; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+      <span style="width: 28px; height: 1px; background: var(--olive); display: block;"></span>
+      Welcome to HRD
+      <span style="width: 28px; height: 1px; background: var(--olive); display: block;"></span>
+    </div>
+
+    <h1 style="font-family: var(--serif); font-size: clamp(44px, 6vw, 76px); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 32px;">
+      Where Every Visit<br><em style="font-style: italic; color: var(--olive);">Feels Like Home</em>
+    </h1>
+
+    <p style="font-size: 16px; line-height: 1.8; color: var(--ink-60); max-width: 540px; margin: 0 auto 48px; font-weight: 300;">
+      More than a café—it's a sanctuary where botanical fermentation and state-of-the-art culinary craft meet to elevate your daily ritual.
+    </p>
+
+    <div style="display: inline-flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+      <a href="{{ url_for('customer.book_slot') }}" class="btn-primary">
+        Book Your Seat
+        <svg width="14" height="12" viewBox="0 0 14 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 6H13M13 6L8.5 1.5M13 6L8.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+      <a href="{{ url_for('main.menu') }}" class="btn-outline-dark">Explore Menu</a>
+    </div>
+  </div>
+</section>
+
+<!-- Ticker Strip -->
+<div class="ticker">
+  <div class="ticker-track">
+    <div class="ticker-item"><span class="ticker-dot"></span>Botanical Elixirs</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>AI Workspaces</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Fermented Tea & Coffee</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Micro-climate Pods</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Botanical Elixirs</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>AI Workspaces</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Fermented Tea & Coffee</div>
+    <div class="ticker-item"><span class="ticker-dot"></span>Micro-climate Pods</div>
+  </div>
+</div>
+
+<!-- Features / Experience Section -->
+<section class="section section--dark" style="padding: 120px 0;">
+  <div class="container">
+    <div class="section-header" style="flex-direction: column; align-items: center; text-align: center; margin-bottom: 80px;">
+      <span class="section-eyebrow">Powered by Intelligence</span>
+      <h2 class="section-title" style="color: var(--cream);">Discover Our <em style="color: var(--sage);">Next-Gen</em> Experience</h2>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px;">
+      <!-- Feature 1 -->
+      <div class="card" style="background: rgba(245, 240, 230, 0.04); border: 1px solid rgba(245, 240, 230, 0.08); transition: transform 0.3s var(--ease), border-color 0.3s;">
+        <div class="card-body" style="padding: 40px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(122, 154, 106, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 28px; color: var(--sage);">🤖</div>
+          <h3 class="card-title" style="color: var(--cream); font-size: 22px; margin-bottom: 16px;">AI Recommendations</h3>
+          <p class="card-text" style="color: rgba(245, 240, 230, 0.55); font-size: 14px; line-height: 1.7; margin-bottom: 0;">
+            Share your current state or mood, and our Generative AI assistant will recommend the perfect botanical beverage and food pairing tailored just for you.
+          </p>
+        </div>
+      </div>
+
+      <!-- Feature 2 -->
+      <div class="card" style="background: rgba(245, 240, 230, 0.04); border: 1px solid rgba(245, 240, 230, 0.08); transition: transform 0.3s var(--ease), border-color 0.3s;">
+        <div class="card-body" style="padding: 40px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(200, 96, 42, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 28px; color: var(--amber);">📅</div>
+          <h3 class="card-title" style="color: var(--cream); font-size: 22px; margin-bottom: 16px;">Smart Reservations</h3>
+          <p class="card-text" style="color: rgba(245, 240, 230, 0.55); font-size: 14px; line-height: 1.7; margin-bottom: 0;">
+            Reserve dedicated high-speed workspaces, private pods, or casual tables. Our backend predictive scheduler forecasts demand to optimize table availability.
+          </p>
+        </div>
+      </div>
+
+      <!-- Feature 3 -->
+      <div class="card" style="background: rgba(245, 240, 230, 0.04); border: 1px solid rgba(245, 240, 230, 0.08); transition: transform 0.3s var(--ease), border-color 0.3s;">
+        <div class="card-body" style="padding: 40px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(201, 162, 39, 0.15); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 28px; color: var(--yellow);">🌿</div>
+          <h3 class="card-title" style="color: var(--cream); font-size: 22px; margin-bottom: 16px;">Botanical Excellence</h3>
+          <p class="card-text" style="color: rgba(245, 240, 230, 0.55); font-size: 14px; line-height: 1.7; margin-bottom: 0;">
+            Enjoy a highly curated menu featuring slow-fermented sours, organic adaptogenic mushroom brews, and custom herbal infusions crafted for longevity and clarity.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

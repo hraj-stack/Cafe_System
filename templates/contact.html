@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="contact-page">
+  <div class="contact-wrap">
+    <!-- Left Panel: Information -->
+    <div class="contact-info">
+      <h1 class="contact-info-title">Get in<br><em>Touch</em></h1>
+      <p class="contact-info-body">
+        Have questions about our botanical fermentation process, smart scheduling assistant, or interested in local culinary partnerships?
+      </p>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📍</div>
+        <div>
+          <div class="contact-detail-label">Location</div>
+          <div class="contact-detail-value">123 Future Avenue, Cyber City, 2049</div>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">✉️</div>
+        <div>
+          <div class="contact-detail-label">Email</div>
+          <div class="contact-detail-value">hello@hrd.ai</div>
+        </div>
+      </div>
+
+      <div class="contact-detail">
+        <div class="contact-detail-icon">📞</div>
+        <div>
+          <div class="contact-detail-label">Phone</div>
+          <div class="contact-detail-value">+1 (555) 123-4567</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Form -->
+    <div class="contact-form-wrap">
+      <div class="contact-form">
+        <h2 class="contact-form-title">Send a Message</h2>
+        <p class="contact-form-sub">Our team will get back to you within 24 hours.</p>
+
+        <form action="{{ url_for('main.contact') }}" method="POST">
+          <div class="form-group">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" id="name" name="name" required class="form-input" placeholder="e.g. Jean Dupont">
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" name="email" required class="form-input" placeholder="e.g. jean@example.com">
+          </div>
+
+          <div class="form-group">
+            <label for="phone" class="form-label">Phone Number (Optional)</label>
+            <input type="text" id="phone" name="phone" class="form-input" placeholder="e.g. +1 (555) 987-6543">
+          </div>
+
+          <div class="form-group">
+            <label for="message" class="form-label">Message</label>
+            <textarea id="message" name="message" required class="form-textarea" placeholder="How can we help you?"></textarea>
+          </div>
+
+          <div class="pt-6" style="margin-top: 36px;">
+            <button type="submit" class="form-submit">Send Message</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

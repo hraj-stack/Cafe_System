@@ -1,0 +1,1157 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+<style>
+  /* ─── DYNAMIC SHIFTING GRADIENT BACKGROUND FOR THE AI PAGE ─── */
+
+  /* Hide site footer on AI page — this is a full-screen app view */
+  .site-footer { display: none !important; }
+
+  /* Prevent body scroll; the card has its own internal scroll */
+  body { overflow: hidden; }
+
+  .ai-container-wrapper {
+    position: fixed;
+    inset: 0;
+    left: var(--nav-width);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #0d0f0c;
+    overflow: hidden;
+    box-sizing: border-box;
+    z-index: 1;
+  }
+
+  /* Shifting background blobs */
+  .ai-bg-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    z-index: 1;
+    pointer-events: none;
+    animation: float-glow 25s infinite ease-in-out alternate;
+  }
+  .ai-bg-glow-1 {
+    background: radial-gradient(circle, var(--olive) 0%, transparent 70%);
+    top: -10%;
+    left: -10%;
+  }
+  .ai-bg-glow-2 {
+    background: radial-gradient(circle, var(--amber) 0%, transparent 70%);
+    bottom: -10%;
+    right: -10%;
+    animation-delay: -5s;
+  }
+  .ai-bg-glow-3 {
+    background: radial-gradient(circle, var(--yellow) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -10s;
+  }
+
+  @keyframes float-glow {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(80px, -50px) scale(1.15); }
+    100% { transform: translate(-40px, 80px) scale(0.9); }
+  }
+
+  /* ─── GLASSMORPHIC LAYOUT CONTAINER ─── */
+  .glass-card-ai {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1100px;
+    height: calc(100vh - 40px);
+    max-height: 880px;
+    min-height: 500px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    background: rgba(28, 26, 20, 0.45);
+    backdrop-filter: blur(25px) saturate(140%);
+    -webkit-backdrop-filter: blur(25px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg), 0 20px 50px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+  }
+
+  /* LEFT SIDEBAR PANEL: Mood Selection */
+  .glass-sidebar {
+    background: rgba(28, 26, 20, 0.35);
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;   /* grid child fix — allows internal scroll */
+    overflow: hidden;
+  }
+
+  .glass-sidebar-header {
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  .glass-sidebar-title {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .glass-sidebar-sub {
+    font-family: var(--sans);
+    font-size: 12px;
+    color: rgba(245, 240, 230, 0.6);
+    line-height: 1.5;
+  }
+
+  .mood-selection-title {
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--yellow);
+    margin-bottom: 12px;
+    margin-top: 16px;
+  }
+
+  .glass-mood-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    min-height: 0;
+  }
+
+  /* Custom glassmorphic scrollbars */
+  .glass-mood-list::-webkit-scrollbar,
+  .glass-messages-container::-webkit-scrollbar {
+    width: 4px;
+  }
+  .glass-mood-list::-webkit-scrollbar-track,
+  .glass-messages-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .glass-mood-list::-webkit-scrollbar-thumb,
+  .glass-messages-container::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  .glass-mood-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--r);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 12.5px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.3s var(--ease);
+    flex-shrink: 0;
+  }
+
+  .glass-mood-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(4px);
+  }
+
+  .glass-mood-btn.active {
+    background: rgba(74, 92, 58, 0.25);
+    border-color: var(--sage);
+    box-shadow: 0 0 15px rgba(122, 154, 106, 0.2);
+  }
+
+  .glass-mood-emoji {
+    font-size: 16px;
+  }
+
+  .sidebar-footer {
+    margin-top: 12px;
+    flex-shrink: 0;
+  }
+
+  .glass-clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.15);
+    border-radius: var(--r);
+    color: rgba(245, 240, 230, 0.6);
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .glass-clear-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--cream);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  /* RIGHT PANEL: Chat Thread */
+  .glass-chat-panel {
+    display: flex;
+    flex-direction: column;
+    background: rgba(28, 26, 20, 0.1);
+    /* CRITICAL: grid children need min-height:0 + overflow:hidden
+       otherwise they expand to fit content and overflow-y:auto has no effect */
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ─── CHAT PANEL HEADER ─── */
+  .glass-chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(28, 26, 20, 0.25);
+    flex-shrink: 0;
+  }
+  .glass-chat-header-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .glass-chat-header-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--olive);
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .glass-chat-header-name {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+  }
+  .glass-chat-header-status {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: var(--sage);
+    margin-top: 2px;
+  }
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--sage);
+    box-shadow: 0 0 6px var(--sage);
+  }
+  .glass-delete-chat-btn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    background: rgba(255, 80, 80, 0.06);
+    border: 1px solid rgba(255, 80, 80, 0.15);
+    border-radius: var(--r);
+    color: rgba(245, 240, 230, 0.55);
+    font-family: var(--mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .glass-delete-chat-btn:hover {
+    background: rgba(255, 80, 80, 0.14);
+    border-color: rgba(255, 80, 80, 0.4);
+    color: #ff9090;
+  }
+
+  /* ─── INLINE DELETE CONFIRMATION BAR ─── */
+  .delete-confirm-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 32px;
+    background: rgba(180, 40, 40, 0.12);
+    border-bottom: 1px solid rgba(255, 80, 80, 0.18);
+    flex-shrink: 0;
+    overflow: hidden;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+    transition: max-height 0.35s ease, padding 0.35s ease, opacity 0.3s ease;
+  }
+  .delete-confirm-bar.visible {
+    max-height: 60px;
+    padding: 12px 32px;
+    opacity: 1;
+  }
+  .delete-confirm-text {
+    font-size: 12.5px;
+    color: rgba(245, 240, 230, 0.8);
+    font-family: var(--sans);
+  }
+  .delete-confirm-text span {
+    color: #ff9090;
+    font-weight: 600;
+  }
+  .delete-confirm-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .delete-confirm-yes {
+    padding: 6px 16px;
+    background: rgba(200, 50, 50, 0.7);
+    border: 1px solid rgba(255, 100, 100, 0.4);
+    border-radius: var(--r);
+    color: #fff;
+    font-size: 11px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .delete-confirm-yes:hover { background: rgba(220, 60, 60, 0.9); }
+  .delete-confirm-no {
+    padding: 6px 16px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--r);
+    color: rgba(245, 240, 230, 0.6);
+    font-size: 11px;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .delete-confirm-no:hover {
+    background: rgba(255,255,255,0.06);
+    color: var(--cream);
+  }
+
+  .glass-messages-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 28px 36px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 0;
+  }
+
+  /* MESSAGE BUBBLES */
+  .chat-msg-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    animation: msg-slide-up 0.4s var(--ease) forwards;
+  }
+  .chat-msg-row--user {
+    flex-direction: row-reverse;
+  }
+
+  @keyframes msg-slide-up {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chat-msg-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  .chat-msg-avatar--bot {
+    background: var(--olive);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  .chat-msg-avatar--user {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .chat-msg-bubble {
+    max-width: 580px;
+    padding: 16px 20px;
+    border-radius: 12px;
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  }
+  .chat-msg-bubble--bot {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--cream);
+    border-radius: 2px 14px 14px 14px;
+  }
+  .chat-msg-bubble--user {
+    background: rgba(74, 92, 58, 0.45);
+    border: 1px solid rgba(122, 154, 106, 0.3);
+    color: var(--cream);
+    border-radius: 14px 2px 14px 14px;
+  }
+
+  /* TYPING INDICATOR */
+  .glass-typing-dot {
+    width: 6px;
+    height: 6px;
+    background-color: var(--cream);
+    border-radius: 50%;
+    display: inline-block;
+    opacity: 0.6;
+    animation: typing-bounce 1.4s infinite ease-in-out both;
+  }
+  .glass-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+  .glass-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+  @keyframes typing-bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+  }
+
+  /* ─── RECOMMENDED CARD GRID ─── */
+  .rec-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+    margin-top: 16px;
+    width: 100%;
+  }
+
+  .rec-item-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  }
+  .rec-item-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  .rec-card-image-wrap {
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
+    position: relative;
+    background: rgba(0,0,0,0.2);
+  }
+  .rec-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  .rec-item-card:hover .rec-card-image {
+    transform: scale(1.05);
+  }
+
+  .rec-card-info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .rec-item-name {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.3;
+  }
+
+  .rec-item-desc {
+    font-size: 11.5px;
+    line-height: 1.45;
+    color: rgba(245, 240, 230, 0.6);
+  }
+
+  .rec-item-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .rec-item-price {
+    font-family: var(--mono);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--yellow);
+  }
+
+  .rec-item-actions {
+    display: flex;
+    gap: 8px;
+  }
+
+  .rec-btn {
+    padding: 8px 14px;
+    border-radius: var(--r);
+    font-size: 10.5px;
+    font-family: var(--sans);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .rec-btn-add {
+    background: var(--cream);
+    color: var(--ink);
+    border: none;
+  }
+  .rec-btn-add:hover {
+    background: var(--yellow);
+    transform: translateY(-1px);
+  }
+
+  .rec-btn-book {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--cream);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .rec-btn-book:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+
+  /* INPUT BAR */
+  .glass-input-bar {
+    padding: 16px 28px;
+    background: transparent;
+    display: flex;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .glass-input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 8px 8px 8px 24px;
+    transition: all 0.3s var(--ease);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+  }
+  .glass-input-container:focus-within {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.05), inset 0 1px 2px rgba(0,0,0,0.1);
+  }
+  .glass-chat-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 14px;
+    outline: none;
+    padding: 8px 0;
+  }
+  .glass-send-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--olive);
+    border: none;
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+    flex-shrink: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  .glass-send-btn:hover:not(:disabled) {
+    background: var(--sage);
+    transform: scale(1.05);
+  }
+  .glass-send-btn:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+  .glass-send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* SUGGESTION CHIPS FOR DEDICATED AI PAGE */
+  .widget-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  }
+  .widget-suggest-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: rgba(245, 240, 230, 0.4);
+    width: 100%;
+  }
+  .widget-suggest-tag {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 6px 12px;
+    color: rgba(245, 240, 230, 0.85);
+    font-size: 11px;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: all 0.25s var(--ease);
+  }
+  .widget-suggest-tag:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: var(--cream);
+    transform: translateY(-1px);
+  }
+
+  /* ─── CUSTOM GLASS TOAST SYSTEM ─── */
+  #toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+  }
+
+  .custom-toast {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(28, 26, 20, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--r-card);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    color: var(--cream);
+    font-family: var(--sans);
+    font-size: 13px;
+    min-width: 280px;
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .custom-toast.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .toast-icon {
+    font-size: 16px;
+    color: var(--yellow);
+  }
+
+  .toast-message {
+    font-weight: 400;
+  }
+
+  @media (max-width: 900px) {
+    .glass-card-ai {
+      grid-template-columns: 1fr;
+      height: calc(100vh - 32px);
+    }
+    .glass-sidebar {
+      display: none;
+    }
+    .ai-container-wrapper {
+      padding: 16px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ai-container-wrapper">
+  <!-- Glowing Background elements -->
+  <div class="ai-bg-glow ai-bg-glow-1"></div>
+  <div class="ai-bg-glow ai-bg-glow-2"></div>
+  <div class="ai-bg-glow ai-bg-glow-3"></div>
+
+  <!-- Glassmorphic Card -->
+  <div class="glass-card-ai">
+    <!-- Left Sidebar: Dynamic Mood list -->
+    <div class="glass-sidebar">
+      <div class="glass-sidebar-header">
+        <h1 class="glass-sidebar-title"><span>🤖</span> HRD AI</h1>
+        <p class="glass-sidebar-sub">Your personal botanical recommender. Share your mood or ask for pairings.</p>
+        
+        <h3 class="mood-selection-title">State of Mind</h3>
+        <div class="glass-mood-list">
+          {% for mood in moods %}
+            {% set emojis = {'Happy':'😊', 'Stressed':'😰', 'Tired':'😴', 'Energetic':'⚡', 'Focused':'🧠', 'Romantic':'💖', 'Casual':'🌿'} %}
+            <button class="glass-mood-btn" data-mood="{{ mood }}">
+              <span class="glass-mood-emoji">{{ emojis.get(mood, '🍃') }}</span>
+              <span>{{ mood }}</span>
+            </button>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="sidebar-footer">
+        <button id="clear-chat-btn" class="glass-clear-btn">
+          🗑️ Clear Conversation
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Panel: Chat Interface -->
+    <div class="glass-chat-panel">
+
+      <!-- Chat Panel Header -->
+      <div class="glass-chat-header">
+        <div class="glass-chat-header-info">
+          <div class="glass-chat-header-avatar">🤖</div>
+          <div>
+            <div class="glass-chat-header-name">HRD AI Assistant</div>
+            <div class="glass-chat-header-status">
+              <span class="status-dot"></span> Online
+            </div>
+          </div>
+        </div>
+        <button id="delete-chat-btn" class="glass-delete-chat-btn" title="Delete conversation">
+          🗑️ Delete Chat
+        </button>
+      </div>
+
+      <!-- Inline delete confirmation bar (hidden by default) -->
+      <div class="delete-confirm-bar" id="delete-confirm-bar">
+        <div class="delete-confirm-text">Delete <span>entire conversation</span>? This cannot be undone.</div>
+        <div class="delete-confirm-actions">
+          <button class="delete-confirm-yes" id="delete-confirm-yes">Yes, Delete</button>
+          <button class="delete-confirm-no" id="delete-confirm-no">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Chat history thread -->
+      <div class="glass-messages-container" id="chat-messages">
+        <!-- Welcoming statement will be loaded dynamically by script -->
+      </div>
+
+      <!-- Input controller -->
+      <div class="glass-input-bar">
+        <div class="glass-input-container">
+          <input type="text" id="chat-input" class="glass-chat-input" placeholder="Ask HRD anything about food, drinks, combos, reservations..." autocomplete="off">
+          <button id="send-btn" class="glass-send-btn">➔</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Toast Node container -->
+<div id="toast-container"></div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const messagesContainer = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const clearChatBtn = document.getElementById('clear-chat-btn');
+    const deleteChatBtn = document.getElementById('delete-chat-btn');
+    const deleteConfirmBar = document.getElementById('delete-confirm-bar');
+    const deleteConfirmYes = document.getElementById('delete-confirm-yes');
+    const deleteConfirmNo = document.getElementById('delete-confirm-no');
+    const moodButtons = document.querySelectorAll('.glass-mood-btn');
+
+    // Retrieve cart & chat history state
+    let chatHistory = [];
+    try {
+      const stored = localStorage.getItem('hrd_chat_history_v2');
+      if (stored) {
+        chatHistory = JSON.parse(stored);
+      }
+    } catch(e) {
+      console.error("Error reading chat history", e);
+    }
+
+    // Default welcome block
+    if (chatHistory.length === 0) {
+      chatHistory.push({
+        role: 'bot',
+        text: "👋 What's your mood today?",
+        is_welcome: true
+      });
+      localStorage.setItem('hrd_chat_history_v2', JSON.stringify(chatHistory));
+    }
+
+    // Setup Custom Toast Notification helper
+    function showToast(message) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'custom-toast';
+      toast.innerHTML = `
+        <span class="toast-icon">✨</span>
+        <span class="toast-message">${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 10);
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 2500);
+    }
+
+    // Category Emoji mapping helper
+    function getCategoryEmoji(name) {
+      const lower = name.toLowerCase();
+      if (lower.includes('coffee') || lower.includes('latte') || lower.includes('macchiato') || lower.includes('espresso') || lower.includes('brew')) return '☕';
+      if (lower.includes('tea') || lower.includes('infusion')) return '🍵';
+      if (lower.includes('cake') || lower.includes('pudding') || lower.includes('tiramisu') || lower.includes('pie') || lower.includes('gelato')) return '🍰';
+      if (lower.includes('soup') || lower.includes('bisque') || lower.includes('chowder')) return '🥣';
+      if (lower.includes('salad') || lower.includes('arugula') || lower.includes('spinach')) return '🥗';
+      return '🍽️';
+    }
+
+    // Render history thread
+    function renderMessages() {
+      // Clear thread
+      messagesContainer.innerHTML = '';
+
+      chatHistory.forEach(msg => {
+        const row = document.createElement('div');
+        row.className = `chat-msg-row ${msg.role === 'user' ? 'chat-msg-row--user' : ''}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = `chat-msg-avatar ${msg.role === 'user' ? 'chat-msg-avatar--user' : 'chat-msg-avatar--bot'}`;
+        avatar.textContent = msg.role === 'user' ? '👤' : '🤖';
+
+        const bubble = document.createElement('div');
+        bubble.className = `chat-msg-bubble ${msg.role === 'user' ? 'chat-msg-bubble--user' : 'chat-msg-bubble--bot'}`;
+
+        // Setup textual node
+        const pText = document.createElement('p');
+        pText.innerHTML = msg.text.replace(/\n/g, '<br>');
+        bubble.appendChild(pText);
+
+        // Setup suggestion tags if this is the welcome message
+        if (msg.role === 'bot' && msg.is_welcome) {
+          const suggestions = document.createElement('div');
+          suggestions.className = 'widget-suggestions';
+          suggestions.innerHTML = `
+            <div class="widget-suggest-label">Try asking:</div>
+            <button class="widget-suggest-tag" data-query="Something cold & sweet">Something cold & sweet</button>
+            <button class="widget-suggest-tag" data-query="Coffee & dessert">Coffee & dessert</button>
+            <button class="widget-suggest-tag" data-query="Healthy breakfast">Healthy breakfast</button>
+            <button class="widget-suggest-tag" data-query="Spicy snacks">Spicy snacks</button>
+            <button class="widget-suggest-tag" data-query="Something under ₹250">Under ₹250</button>
+            <button class="widget-suggest-tag" data-query="Surprise me">Surprise me</button>
+          `;
+          bubble.appendChild(suggestions);
+        }
+
+        // Setup recommended cards if present
+        if (msg.recommended_items && msg.recommended_items.length > 0) {
+          const grid = document.createElement('div');
+          grid.className = 'rec-items-grid';
+
+          msg.recommended_items.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'rec-item-card';
+            
+            const itemDesc = item.description || "Fresh and peppery botanical choice.";
+            const itemImg = item.image_url || "/static/img/default_menu.jpg";
+
+            card.innerHTML = `
+              <div class="rec-card-image-wrap">
+                <img src="${itemImg}" class="rec-card-image" alt="${item.name}">
+              </div>
+              <div class="rec-card-info">
+                <div>
+                  <div class="rec-item-name">${item.name}</div>
+                  <div class="rec-item-desc" style="margin-top: 4px;">${itemDesc}</div>
+                </div>
+                <div class="rec-item-footer">
+                  <div class="rec-item-price">₹${item.price}</div>
+                  <div class="rec-item-actions">
+                    <button class="rec-btn rec-btn-add" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">
+                      + Add
+                    </button>
+                    <a href="/customer/book" class="rec-btn rec-btn-book">
+                      Book
+                    </a>
+                  </div>
+                </div>
+              </div>
+            `;
+            grid.appendChild(card);
+          });
+          bubble.appendChild(grid);
+        }
+
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        messagesContainer.appendChild(row);
+      });
+
+      // Bind dynamic Add to Cart triggers
+      document.querySelectorAll('.rec-btn-add').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.getAttribute('data-id'));
+          const name = btn.getAttribute('data-name');
+          const price = parseFloat(btn.getAttribute('data-price'));
+
+          // Load local cafe_cart
+          let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+          const existing = cart.find(x => x.id === id);
+          if (existing) {
+            existing.quantity++;
+          } else {
+            const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+            cart.push({ id, name, price, quantity: 1, dateAdded: dateStr });
+          }
+          localStorage.setItem('cafe_cart', JSON.stringify(cart));
+
+          // Toast feedback and mini animation
+          showToast(`${name} added to your cart!`);
+          btn.style.transform = 'scale(0.95)';
+          setTimeout(() => btn.style.transform = 'none', 100);
+
+          // Dispatch event to sync global cart widgets if any
+          window.dispatchEvent(new Event('cartUpdate'));
+        });
+      });
+
+      // Bind dynamic suggestion tag actions
+      document.querySelectorAll('.widget-suggest-tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+          const query = tag.getAttribute('data-query');
+          sendMessage(query);
+        });
+      });
+
+      scrollToBottom();
+    }
+
+    function scrollToBottom() {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    // Send chat text endpoint handler
+    async function sendMessage(textVal) {
+      const text = textVal ? textVal.trim() : chatInput.value.trim();
+      if (!text) return;
+
+      // Reset input bar
+      chatInput.value = '';
+      chatInput.disabled = true;
+      sendBtn.disabled = true;
+
+      // Append user text
+      chatHistory.push({
+        role: 'user',
+        text: text
+      });
+      localStorage.setItem('hrd_chat_history_v2', JSON.stringify(chatHistory));
+      renderMessages();
+
+      // Setup typing indicator bubble
+      const typingRow = document.createElement('div');
+      typingRow.className = 'chat-msg-row';
+      typingRow.id = 'typing-indicator-row';
+      typingRow.innerHTML = `
+        <div class="chat-msg-avatar chat-msg-avatar--bot">🤖</div>
+        <div class="chat-msg-bubble chat-msg-bubble--bot" style="display: flex; align-items: center; gap: 4px; padding: 12px 16px;">
+          <span class="glass-typing-dot"></span>
+          <span class="glass-typing-dot"></span>
+          <span class="glass-typing-dot"></span>
+        </div>
+      `;
+      messagesContainer.appendChild(typingRow);
+      scrollToBottom();
+
+      try {
+        const response = await fetch('/ai/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: text,
+            // Filter out is_welcome entries so history always starts with a user turn
+            history: chatHistory
+              .slice(0, -1)
+              .filter(h => !h.is_welcome)
+              .map(h => ({ role: h.role, text: h.text }))
+          })
+        });
+
+        // Delete indicator
+        const indicator = document.getElementById('typing-indicator-row');
+        if (indicator) indicator.remove();
+
+        if (response.ok) {
+          const resData = await response.json();
+          if (resData.success && resData.response) {
+            chatHistory.push({
+              role: 'bot',
+              text: resData.response,
+              recommended_items: resData.recommended_items || []
+            });
+          } else {
+            chatHistory.push({
+              role: 'bot',
+              text: resData.message || "The AI Assistant is currently unavailable. Please try again in a few moments."
+            });
+          }
+        } else {
+          chatHistory.push({
+            role: 'bot',
+            text: "The AI Assistant is currently unavailable. Please try again in a few moments."
+          });
+        }
+      } catch (e) {
+        console.error("AJAX error:", e);
+        const indicator = document.getElementById('typing-indicator-row');
+        if (indicator) indicator.remove();
+        chatHistory.push({
+          role: 'bot',
+          text: "The AI Assistant is currently unavailable. Please try again in a few moments."
+        });
+      }
+
+      // Re-enable inputs
+      localStorage.setItem('hrd_chat_history_v2', JSON.stringify(chatHistory));
+      chatInput.disabled = false;
+      sendBtn.disabled = false;
+      chatInput.focus();
+      renderMessages();
+    }
+
+    // Button event actions
+    sendBtn.addEventListener('click', () => sendMessage());
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Helper: reset conversation to welcome state
+    function resetConversation() {
+      chatHistory = [{
+        role: 'bot',
+        text: "👋 What's your mood today?",
+        is_welcome: true
+      }];
+      localStorage.setItem('hrd_chat_history_v2', JSON.stringify(chatHistory));
+      moodButtons.forEach(btn => btn.classList.remove('active'));
+      renderMessages();
+    }
+
+    // Sidebar clear button — same UX via confirm bar
+    clearChatBtn.addEventListener('click', () => {
+      deleteConfirmBar.classList.add('visible');
+      messagesContainer.scrollTop = 0;
+    });
+
+    // Delete Chat button — show inline confirmation bar
+    deleteChatBtn.addEventListener('click', () => {
+      deleteConfirmBar.classList.toggle('visible');
+    });
+
+    // Confirm delete — YES
+    deleteConfirmYes.addEventListener('click', () => {
+      deleteConfirmBar.classList.remove('visible');
+      resetConversation();
+      // Brief success feedback
+      deleteChatBtn.textContent = '✓ Deleted';
+      deleteChatBtn.style.color = 'var(--sage)';
+      deleteChatBtn.style.borderColor = 'var(--sage)';
+      setTimeout(() => {
+        deleteChatBtn.innerHTML = '🗑️ Delete Chat';
+        deleteChatBtn.style.color = '';
+        deleteChatBtn.style.borderColor = '';
+      }, 1800);
+    });
+
+    // Confirm delete — NO / Cancel
+    deleteConfirmNo.addEventListener('click', () => {
+      deleteConfirmBar.classList.remove('visible');
+    });
+
+    // Sidebar Mood click handler (fully dynamic, doesn't refresh page)
+    moodButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Toggle active design styles
+        moodButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+
+        const mood = button.getAttribute('data-mood');
+        sendMessage(`I'm feeling ${mood} today. What do you recommend?`);
+      });
+    });
+
+    // Initial render call
+    renderMessages();
+  });
+</script>
+{% endblock %}

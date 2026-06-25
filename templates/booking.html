@@ -1,0 +1,375 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- HRD Seating Hero Banner -->
+<div class="page-hero" style="text-align: center; padding: 60px var(--container-pad) 40px;">
+  <div class="page-hero-eyebrow">Interactive Reservation</div>
+  <h1 class="page-hero-title">Select Your <em>Table</em></h1>
+  <p class="page-hero-sub">Experience visual cafe floor plan selection. Choose your environment.</p>
+</div>
+
+<div class="booking-page" style="background: var(--cream); padding: var(--space-xl) 0;">
+  <div class="container" style="max-width: 1200px; margin: 0 auto;">
+    
+    <!-- Seating Layout grid -->
+    <div style="display: grid; grid-template-columns: 1fr 360px; gap: 40px; align-items: start;" class="booking-layout-grid">
+      
+      <!-- Left side: Interactive Map -->
+      <div class="card" style="padding: 30px; background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card);">
+        
+        <!-- Step 1: Select Date & Time slot -->
+        <div class="booking-date-time-grid">
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="booking-date" class="form-label">1. Choose Date</label>
+            <input type="date" id="booking-date" required class="form-input" min="{{ current_date }}" style="background: var(--fog);">
+          </div>
+          <div class="form-group" style="margin-bottom: 0;">
+            <label for="booking-time" class="form-label">2. Choose Time</label>
+            <select id="booking-time" class="form-select" style="background: var(--fog);">
+              <option value="" disabled selected>Select Slot</option>
+              <option value="09:00">09:00 AM</option>
+              <option value="10:00">10:00 AM</option>
+              <option value="11:00">11:00 AM</option>
+              <option value="12:00">12:00 PM (Noon)</option>
+              <option value="13:00">01:00 PM</option>
+              <option value="14:00">02:00 PM</option>
+              <option value="15:00">03:00 PM</option>
+              <option value="16:00">04:00 PM</option>
+              <option value="17:00">05:00 PM</option>
+              <option value="18:00">06:00 PM</option>
+              <option value="19:00">07:00 PM</option>
+              <option value="20:00">08:00 PM</option>
+              <option value="21:00">09:00 PM</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Indicator Legends -->
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; font-family: var(--mono); font-size: 10px; text-transform: uppercase;">
+          <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #7a9a6a; border-radius: 2px;"></span>Available</div>
+          <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #9e3d28; border-radius: 2px;"></span>Reserved</div>
+          <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #c8602a; border-radius: 2px;"></span>Selected</div>
+          <div style="display: flex; align-items: center; gap: 6px;"><span style="width: 12px; height: 12px; background: #c9a227; border-radius: 2px;"></span>Premium</div>
+        </div>
+
+        <!-- Seating Map Grid (Floorplan representation) -->
+        <div id="floorplan-container" style="position: relative; background: var(--fog); border-radius: var(--r-card); padding: 40px; min-height: 480px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--sand); overflow-x: auto; transition: opacity 0.3s;">
+          
+          <!-- Large Glass Window indicator -->
+          <div style="text-align: center; border-bottom: 2px solid var(--olive); color: var(--olive); font-family: var(--mono); font-size: 9px; letter-spacing: 0.3em; padding-bottom: 8px; text-transform: uppercase;">
+            Large Panoramic Glass Window 🪟
+          </div>
+
+          <!-- Window seats row -->
+          <div style="display: flex; justify-content: space-around; margin: 30px 0;">
+            <button class="table-node premium-node" data-id="W1" data-category="Window Seating" data-capacity="4" data-view="Garden & Lake View">W1</button>
+            <button class="table-node premium-node" data-id="W2" data-category="Window Seating" data-capacity="4" data-view="Garden & Lake View">W2</button>
+            <button class="table-node premium-node" data-id="W3" data-category="Window Seating" data-capacity="4" data-view="Garden & Lake View">W3</button>
+            <button class="table-node premium-node" data-id="W4" data-category="Window Seating" data-capacity="2" data-view="Street View">W4</button>
+            <button class="table-node premium-node" data-id="W5" data-category="Window Seating" data-capacity="2" data-view="Street View">W5</button>
+          </div>
+
+          <!-- Mid Row: Coffee Bar Area & Bar seats -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin: 30px 0;">
+            <!-- Coffee Bar Counter -->
+            <div style="background: var(--cream); border: 2px dashed var(--olive); border-radius: var(--r); padding: 12px; text-align: center; font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--olive); display: flex; align-items: center; justify-content: center; position: relative;">
+              ☕ COFFEE PREPARATION BAR
+              <!-- Bar Seats line -->
+              <div style="position: absolute; bottom: -24px; display: flex; justify-content: space-around; width: 90%;">
+                <button class="table-node small-node" data-id="C1" data-category="Coffee Bar seating" data-capacity="1" data-view="Baristacraft View">C1</button>
+                <button class="table-node small-node" data-id="C2" data-category="Coffee Bar seating" data-capacity="1" data-view="Baristacraft View">C2</button>
+                <button class="table-node small-node" data-id="C3" data-category="Coffee Bar seating" data-capacity="2" data-view="Baristacraft View">C3</button>
+                <button class="table-node small-node" data-id="C4" data-category="Coffee Bar seating" data-capacity="2" data-view="Baristacraft View">C4</button>
+                <button class="table-node small-node" data-id="C5" data-category="Coffee Bar seating" data-capacity="1" data-view="Baristacraft View">C5</button>
+              </div>
+            </div>
+
+            <!-- Group Seating / Lounge -->
+            <div style="display: flex; flex-direction: column; justify-content: space-around; align-items: center; gap: 12px;">
+              <button class="table-node large-node" data-id="L1" data-category="Lounge Seating" data-capacity="6" data-view="Lounge View">L1 (Sofa)</button>
+              <button class="table-node large-node" data-id="L2" data-category="Lounge Seating" data-capacity="6" data-view="Lounge View">L2 (Sofa)</button>
+            </div>
+          </div>
+
+          <!-- Mid-Bottom: Center Tables & Quiet Corners -->
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 40px; margin: 30px 0;">
+            <!-- Group group tables -->
+            <div style="display: flex; justify-content: space-around;">
+              <button class="table-node" data-id="B1" data-category="Center Tables" data-capacity="4" data-view="Center Area">B1</button>
+              <button class="table-node" data-id="B2" data-category="Center Tables" data-capacity="4" data-view="Center Area">B2</button>
+              <button class="table-node" data-id="B3" data-category="Center Tables" data-capacity="4" data-view="Center Area">B3</button>
+              <button class="table-node" data-id="B4" data-category="Center Tables" data-capacity="6" data-view="Center Area">B4</button>
+            </div>
+            <!-- Quiet Corner meetings -->
+            <div style="display: flex; justify-content: space-around;">
+              <button class="table-node" data-id="Q1" data-category="Quiet Seating" data-capacity="2" data-view="Corner Meeting Space">Q1</button>
+              <button class="table-node" data-id="Q2" data-category="Quiet Seating" data-capacity="2" data-view="Corner Meeting Space">Q2</button>
+            </div>
+          </div>
+
+          <!-- Bottom Row: Patio Garden Seating -->
+          <div style="text-align: center; border-top: 1px dashed var(--sand); padding-top: 12px; margin-top: 20px;">
+            <div style="margin-bottom: 12px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.3em; color: var(--sage); text-transform: uppercase;">Outdoor Garden Patio 🌿</div>
+            <div style="display: flex; justify-content: space-around;">
+              <button class="table-node" data-id="O1" data-category="Outdoor Tables" data-capacity="4" data-view="Garden View">O1</button>
+              <button class="table-node" data-id="O2" data-category="Outdoor Tables" data-capacity="4" data-view="Garden View">O2</button>
+              <button class="table-node" data-id="O3" data-category="Outdoor Tables" data-capacity="4" data-view="Garden View">O3</button>
+              <button class="table-node" data-id="O4" data-category="Outdoor Tables" data-capacity="2" data-view="Garden View">O4</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Right side: Reservation Panel -->
+      <div id="booking-sidebar" style="display: flex; flex-direction: column; gap: 24px;">
+        
+        <!-- Table Information Popup Card -->
+        <div id="info-card" class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); padding: 24px; display: none;">
+          <h3 style="font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--sand); padding-bottom: 8px; margin-bottom: 14px;">Table Details</h3>
+          <table style="width: 100%; font-size: 13px; color: var(--ink-60); line-height: 1.8;">
+            <tr><td style="font-weight: 500; color: var(--ink);">Table Code:</td><td id="info-code" style="text-align: right; font-weight: 700; color: var(--olive);">W3</td></tr>
+            <tr><td style="font-weight: 500; color: var(--ink);">Capacity:</td><td id="info-capacity" style="text-align: right;">4 Guests</td></tr>
+            <tr><td style="font-weight: 500; color: var(--ink);">Location:</td><td id="info-location" style="text-align: right;">Window Seating</td></tr>
+            <tr><td style="font-weight: 500; color: var(--ink);">View:</td><td id="info-view" style="text-align: right;">Street View</td></tr>
+            <tr><td style="font-weight: 500; color: var(--ink);">Status:</td><td id="info-status" style="text-align: right; font-weight: 700; color: #7a9a6a;">Available</td></tr>
+          </table>
+          <button id="select-table-btn" class="form-submit" style="width: 100%; margin-top: 18px; padding: 10px;">Select Table</button>
+        </div>
+
+        <!-- Reservation Confirmation Summary Form -->
+        <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); padding: 24px;">
+          <h3 style="font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); border-bottom: 1px solid var(--sand); padding-bottom: 8px; margin-bottom: 14px;">Reservation details</h3>
+          
+          <form action="{{ url_for('customer.book_slot') }}" method="POST" id="confirm-booking-form">
+            <!-- Hidden inputs mapped dynamically -->
+            <input type="hidden" name="date" id="hidden-date">
+            <input type="hidden" name="time" id="hidden-time">
+            <input type="hidden" name="seat_type" id="hidden-seat-type">
+
+            <div class="form-group">
+              <label for="guests" class="form-label">Guests Count</label>
+              <input type="number" name="guests" id="guests" min="1" max="10" required class="form-input" style="background: var(--fog);" placeholder="e.g. 2">
+            </div>
+
+            <!-- Booking Summary Details list -->
+            <div style="background: var(--fog); padding: 16px; border-radius: var(--r); margin: 20px 0; font-size: 13px; color: var(--ink-60); display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between;"><span>Date:</span><strong id="summary-date" style="color: var(--ink);">-</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Time:</span><strong id="summary-time" style="color: var(--ink);">-</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Selected Table:</span><strong id="summary-table" style="color: var(--ink);">-</strong></div>
+              <div style="display: flex; justify-content: space-between;"><span>Capacity limit:</span><strong id="summary-capacity" style="color: var(--ink);">-</strong></div>
+              <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--sand); padding-top: 8px;"><span>Booking Fee:</span><strong style="color: var(--olive);">FREE</strong></div>
+            </div>
+
+            <button type="submit" id="confirm-btn" class="form-submit" style="width: 100%;" disabled>Confirm Reservation</button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+  /* Seating Node Styling */
+  .table-node {
+    width: 44px;
+    height: 44px;
+    background: #7a9a6a;
+    border: 1px solid var(--sand);
+    border-radius: 4px;
+    color: var(--cream);
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s var(--ease);
+    box-shadow: var(--shadow-sm);
+  }
+  .table-node:hover {
+    transform: translateY(-2px) scale(1.06);
+    box-shadow: var(--shadow-md);
+  }
+  .table-node.selected {
+    background: #c8602a !important;
+    color: var(--cream) !important;
+  }
+  .table-node.booked {
+    background: #9e3d28 !important;
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.8;
+  }
+  .table-node.premium-node {
+    background: #c9a227;
+  }
+
+  .table-node.small-node {
+    width: 32px;
+    height: 32px;
+    font-size: 9px;
+  }
+  .table-node.large-node {
+    width: 72px;
+    height: 38px;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 1024px) {
+    .booking-layout-grid {
+      grid-template-columns: 1fr !important;
+      gap: 40px !important;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const dateInput = document.getElementById('booking-date');
+    const timeInput = document.getElementById('booking-time');
+    const floorplan = document.getElementById('floorplan-container');
+    const nodes = document.querySelectorAll('.table-node');
+
+    const infoCard = document.getElementById('info-card');
+    const infoCode = document.getElementById('info-code');
+    const infoCapacity = document.getElementById('info-capacity');
+    const infoLocation = document.getElementById('info-location');
+    const infoView = document.getElementById('info-view');
+    const infoStatus = document.getElementById('info-status');
+    const selectTableBtn = document.getElementById('select-table-btn');
+
+    const hiddenDate = document.getElementById('hidden-date');
+    const hiddenTime = document.getElementById('hidden-time');
+    const hiddenSeatType = document.getElementById('hidden-seat-type');
+    const summaryDate = document.getElementById('summary-date');
+    const summaryTime = document.getElementById('summary-time');
+    const summaryTable = document.getElementById('summary-table');
+    const summaryCapacity = document.getElementById('summary-capacity');
+    const confirmBtn = document.getElementById('confirm-btn');
+    const guestsInput = document.getElementById('guests');
+
+    let selectedTableNode = null;
+    let selectedTableData = null;
+
+    // Listen date/time slots changes to fetch live booking records
+    function updateAvailability() {
+      const date = dateInput.value;
+      const time = timeInput.value;
+
+      if (!date || !time) {
+        // Clear booked state and keep floorplan enabled
+        nodes.forEach(node => {
+          node.classList.remove('booked');
+        });
+        return;
+      }
+
+      // Load hidden form parameters
+      hiddenDate.value = date;
+      hiddenTime.value = time;
+      summaryDate.textContent = new Date(date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+      summaryTime.textContent = timeInput.options[timeInput.selectedIndex].text;
+
+      // Query booked tables
+      fetch(`/customer/booked-tables?date=${date}&time=${time}`)
+        .then(res => res.json())
+        .then(data => {
+          const booked = data.booked_tables || [];
+          
+          nodes.forEach(node => {
+            node.classList.remove('booked', 'selected');
+            const code = node.getAttribute('data-id');
+            if (booked.includes(code)) {
+              node.classList.add('booked');
+            }
+          });
+
+          // Reset selection if previously selected table is now booked
+          if (selectedTableNode && selectedTableNode.classList.contains('booked')) {
+            clearSelection();
+          }
+        });
+    }
+
+    dateInput.addEventListener('change', updateAvailability);
+    timeInput.addEventListener('change', updateAvailability);
+
+    // Node click handlers
+    nodes.forEach(node => {
+      node.addEventListener('click', () => {
+        if (node.classList.contains('booked')) return;
+
+        const code = node.getAttribute('data-id');
+        const category = node.getAttribute('data-category');
+        const capacity = node.getAttribute('data-capacity');
+        const view = node.getAttribute('data-view');
+
+        infoCode.textContent = code;
+        infoCapacity.textContent = `${capacity} Guests`;
+        infoLocation.textContent = category;
+        infoView.textContent = view;
+        infoStatus.textContent = 'Available';
+        infoCard.style.display = 'block';
+
+        selectedTableData = { code, capacity: parseInt(capacity), category, view };
+        
+        // Highlight active table locally in floor plan representation
+        nodes.forEach(n => n.classList.remove('selected'));
+        node.classList.add('selected');
+        selectedTableNode = node;
+      });
+    });
+
+    // Select button click inside popup details drawer
+    selectTableBtn.addEventListener('click', () => {
+      if (!selectedTableData) return;
+
+      hiddenSeatType.value = selectedTableData.code;
+      summaryTable.textContent = selectedTableData.code;
+      summaryCapacity.textContent = `${selectedTableData.capacity} Guests Max`;
+
+      // Pre-set guest count constraints
+      guestsInput.setAttribute('max', selectedTableData.capacity);
+
+      validateReservation();
+    });
+
+    function clearSelection() {
+      selectedTableNode = null;
+      selectedTableData = null;
+      hiddenSeatType.value = '';
+      summaryTable.textContent = '-';
+      summaryCapacity.textContent = '-';
+      infoCard.style.display = 'none';
+      validateReservation();
+    }
+
+    function validateReservation() {
+      const date = dateInput.value;
+      const time = timeInput.value;
+      const table = hiddenSeatType.value;
+      const guests = parseInt(guestsInput.value);
+
+      let isValid = date && time && table && guests > 0;
+
+      if (selectedTableData && guests > selectedTableData.capacity) {
+        isValid = false;
+        alert(`Guest count exceeds table capacity (${selectedTableData.capacity} Guests Max).`);
+        guestsInput.value = selectedTableData.capacity;
+      }
+
+      confirmBtn.disabled = !isValid;
+    }
+
+    guestsInput.addEventListener('input', validateReservation);
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}HRD — Fermented & Botanical{% endblock %}</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+  <!-- Design system (always load in this order) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages.css') }}">
+
+  <!-- Page-specific styles -->
+  {% block extra_css %}{% endblock %}
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('hrd_theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark-theme');
+        document.addEventListener('DOMContentLoaded', () => {
+          document.body.classList.add('dark-theme');
+        });
+      }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Dark Mode Toggle -->
+  <div class="theme-toggle-wrap">
+    <button id="theme-toggle" class="dark-mode-toggle" aria-label="Toggle Dark Mode">🌙</button>
+  </div>
+
+  <!-- ─── FLASH MESSAGES ─── -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div style="position:fixed;top:20px;right:20px;z-index:9999;max-width:360px;">
+        {% for category, message in messages %}
+          <div class="alert alert--{{ category if category in ['success','error','info'] else 'info' }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ─── VERTICAL SIDE NAV ─── -->
+  <nav id="sidenav" aria-label="Site navigation">
+    <div class="nav-wordmark">HR<span>D</span></div>
+    <ul class="nav-links">
+      {% if current_user.is_authenticated and current_user.role == 'Admin' %}
+        <li>
+          <a href="{{ url_for('admin.dashboard') }}"
+             class="{{ 'active' if request.endpoint == 'admin.dashboard' }}" aria-label="Admin Dashboard">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('admin.messaging') }}"
+             class="{{ 'active' if request.endpoint == 'admin.messaging' }}" aria-label="Messaging Center">
+            <span class="nav-icon">✉️</span>
+            <span class="nav-label">Messaging</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('auth.logout') }}" aria-label="Logout">
+            <span class="nav-icon">🚪</span>
+            <span class="nav-label">Logout</span>
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <a href="{{ url_for('main.landing') }}"
+             class="{{ 'active' if request.endpoint == 'main.landing' }}" aria-label="Home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-label">Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('main.menu') }}"
+             class="{{ 'active' if request.endpoint == 'main.menu' }}" aria-label="Menu">
+            <span class="nav-icon">🍵</span>
+            <span class="nav-label">Menu</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('customer.book_slot') }}"
+             class="{{ 'active' if request.endpoint == 'customer.book_slot' }}" aria-label="Book a Seat">
+            <span class="nav-icon">📅</span>
+            <span class="nav-label">Book a Seat</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('main.ai_assistant') }}"
+             class="{{ 'active' if request.endpoint == 'main.ai_assistant' }}" aria-label="AI Assistant">
+            <span class="nav-icon">🤖</span>
+            <span class="nav-label">AI Assistant</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('main.about') }}"
+             class="{{ 'active' if request.endpoint == 'main.about' }}" aria-label="About">
+            <span class="nav-icon">🌿</span>
+            <span class="nav-label">About</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('main.contact') }}"
+             class="{{ 'active' if request.endpoint == 'main.contact' }}" aria-label="Contact">
+            <span class="nav-icon">✉️</span>
+            <span class="nav-label">Contact</span>
+          </a>
+        </li>
+
+        {% if current_user.is_authenticated %}
+          <li>
+            <a href="{{ url_for('customer.dashboard') }}"
+               class="{{ 'active' if 'dashboard' in request.endpoint }}" aria-label="Dashboard">
+              <span class="nav-icon">👤</span>
+              <span class="nav-label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('auth.logout') }}" aria-label="Logout">
+              <span class="nav-icon">🚪</span>
+              <span class="nav-label">Logout</span>
+            </a>
+          </li>
+        {% else %}
+          <li>
+            <a href="{{ url_for('auth.login') }}"
+               class="{{ 'active' if request.endpoint == 'auth.login' }}" aria-label="Login">
+              <span class="nav-icon">🔑</span>
+              <span class="nav-label">Login</span>
+            </a>
+          </li>
+        {% endif %}
+      {% endif %}
+    </ul>
+    {% if not (current_user.is_authenticated and current_user.role == 'Admin') %}
+      <div class="nav-cta-wrap">
+        <a href="{{ url_for('customer.book_slot') }}" class="nav-cta">Reserve a Seat</a>
+      </div>
+    {% endif %}
+  </nav>
+
+  <!-- ─── MAIN CONTENT ─── -->
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ─── FOOTER ─── -->
+  {% if not (current_user.is_authenticated and current_user.role == 'Admin') %}
+  <footer class="site-footer">
+    <div class="footer-mark">HR<em>D</em></div>
+    <ul class="footer-links">
+      <li><a href="{{ url_for('main.menu') }}">Menu</a></li>
+      <li><a href="{{ url_for('customer.book_slot') }}">Reservations</a></li>
+      <li><a href="{{ url_for('main.ai_assistant') }}">AI Assistant</a></li>
+      <li><a href="{{ url_for('main.about') }}">About</a></li>
+      <li><a href="{{ url_for('main.contact') }}">Contact</a></li>
+    </ul>
+    <div class="footer-copy">© 2026 HRD. All rights reserved.</div>
+  </footer>
+  {% endif %}
+
+  <!-- ─── GLOBAL JS ─── -->
+  <script>
+    /* ── Dark Mode Toggle ── */
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    if (themeToggleBtn) {
+      if (document.body.classList.contains('dark-theme')) {
+        themeToggleBtn.textContent = '☀️';
+      } else {
+        themeToggleBtn.textContent = '🌙';
+      }
+      themeToggleBtn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        const isDark = document.body.classList.contains('dark-theme');
+        themeToggleBtn.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('hrd_theme', isDark ? 'dark' : 'light');
+      });
+    }
+
+    /* ── Scroll reveal ── */
+    const reveals = document.querySelectorAll('.reveal');
+    if (reveals.length) {
+      const ro = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); }
+        });
+      }, { threshold: 0.10 });
+      reveals.forEach(el => ro.observe(el));
+    }
+
+    /* ── Auto-dismiss flash messages ── */
+    setTimeout(() => {
+      document.querySelectorAll('.alert').forEach(el => {
+        el.style.transition = 'opacity 0.5s';
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 500);
+      });
+    }, 4000);
+
+    /* ── Store logged in user details in localStorage for Account Chooser ── */
+    {% if current_user.is_authenticated %}
+    (function() {
+      try {
+        let accounts = JSON.parse(localStorage.getItem('hrd_accounts') || '[]');
+        const email = "{{ current_user.email }}";
+        const name = "{{ current_user.name }}";
+        const role = "{{ current_user.role }}";
+        
+        // Remove existing to avoid duplicate and prioritize most recent
+        accounts = accounts.filter(a => a.email !== email);
+        
+        // Colors palette matching global theme
+        const colors = ['#4a5c3a', '#c8602a', '#b08d57', '#7a9a6a', '#a65d50', '#8c7d6c'];
+        let hash = 0;
+        for (let i = 0; i < email.length; i++) {
+          hash = email.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const color = colors[Math.abs(hash) % colors.length];
+        
+        accounts.unshift({ email, name, role, color });
+        localStorage.setItem('hrd_accounts', JSON.stringify(accounts.slice(0, 5)));
+      } catch (e) {
+        console.error("Local storage error:", e);
+      }
+    })();
+    {% endif %}
+  </script>
+
+  <!-- ─── FLOATING AI ASSISTANT WIDGET ─── -->
+  {% if not (current_user.is_authenticated and current_user.role == 'Admin') %}
+  <div id="ai-float-container">
+    <!-- Trigger Button -->
+    <button id="ai-float-trigger" class="ai-float-trigger" aria-label="Open AI Assistant">
+      <span class="ai-float-trigger-icon">🤖</span>
+      <span class="ai-float-trigger-pulse"></span>
+    </button>
+
+    <!-- Floating Chat Window -->
+    <div id="ai-float-window" class="ai-float-window">
+      <div class="ai-float-header">
+        <div class="ai-float-title-wrap">
+          <span class="ai-float-avatar">🤖</span>
+          <div>
+            <div class="ai-float-title">HRD AI Assistant</div>
+            <div class="ai-float-status"><span class="status-dot"></span> Online</div>
+          </div>
+        </div>
+        <button id="ai-float-close" class="ai-float-close" aria-label="Close Chat">&times;</button>
+      </div>
+
+      <!-- Messages Thread -->
+      <div id="ai-float-messages" class="ai-float-messages">
+        <!-- Messages dynamically rendered here -->
+      </div>
+
+      <!-- Input Bar -->
+      <div class="ai-float-input-bar">
+        <div class="ai-float-input-container">
+          <input type="text" id="ai-float-input" placeholder="Ask HRD anything about food, drinks, combos..." autocomplete="off">
+          <button id="ai-float-send" aria-label="Send Message">➔</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* Trigger Button Styles */
+    .ai-float-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(74, 92, 58, 0.85); /* Accent olive tint */
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9998;
+      transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .ai-float-trigger:hover {
+      background: var(--olive);
+      transform: scale(1.08) translateY(-2px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    }
+    .ai-float-trigger-icon {
+      font-size: 24px;
+    }
+    .ai-float-trigger-pulse {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: rgba(74, 92, 58, 0.4);
+      animation: float-pulse 2s infinite;
+      z-index: -1;
+    }
+    @keyframes float-pulse {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    /* Window Container Styles */
+    .ai-float-window {
+      position: fixed;
+      bottom: 96px;
+      right: 24px;
+      width: 360px;
+      height: 520px;
+      background: rgba(28, 26, 20, 0.8); /* Dark glassmorphic */
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg), 0 20px 40px rgba(0,0,0,0.3);
+      display: flex;
+      flex-direction: column;
+      z-index: 9997;
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(20px) scale(0.95);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .ai-float-window.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Header styling */
+    .ai-float-header {
+      padding: 16px 20px;
+      background: rgba(28, 26, 20, 0.4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ai-float-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .ai-float-avatar {
+      font-size: 20px;
+      padding: 4px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 50%;
+    }
+    .ai-float-title {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cream);
+    }
+    .ai-float-status {
+      font-size: 10px;
+      color: var(--sage);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 1px;
+    }
+    .ai-float-status .status-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--sage);
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px var(--sage);
+    }
+    .ai-float-close {
+      background: transparent;
+      border: none;
+      color: rgba(245, 240, 230, 0.6);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .ai-float-close:hover {
+      color: var(--cream);
+    }
+
+    /* Message Thread styling */
+    .ai-float-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .ai-float-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+    .ai-float-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .ai-float-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .float-msg-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      animation: float-msg-up 0.3s var(--ease) forwards;
+    }
+    .float-msg-row--user {
+      flex-direction: row-reverse;
+    }
+    @keyframes float-msg-up {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .float-msg-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+    .float-msg-avatar--bot {
+      background: var(--olive);
+    }
+
+    .float-msg-bubble {
+      max-width: 250px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-family: var(--sans);
+      font-size: 12px;
+      line-height: 1.5;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .float-msg-bubble--bot {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--cream);
+      border-radius: 2px 12px 12px 12px;
+    }
+    .float-msg-bubble--user {
+      background: rgba(74, 92, 58, 0.5);
+      border: 1px solid rgba(122, 154, 106, 0.2);
+      color: var(--cream);
+      border-radius: 12px 2px 12px 12px;
+    }
+
+    .float-typing-dot {
+      width: 5px;
+      height: 5px;
+      background-color: var(--cream);
+      border-radius: 50%;
+      display: inline-block;
+      opacity: 0.6;
+      animation: float-typing 1.4s infinite ease-in-out both;
+    }
+    .float-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .float-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes float-typing {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+
+    /* Floating Recommended items list */
+    .float-rec-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+      width: 100%;
+    }
+    .float-rec-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    .float-rec-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255,255,255,0.15);
+    }
+    .float-rec-card-image-wrap {
+      width: 100%;
+      height: 90px;
+      overflow: hidden;
+      position: relative;
+      background: rgba(0,0,0,0.2);
+    }
+    .float-rec-card-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .float-rec-card-info {
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .float-rec-title {
+      font-family: var(--serif);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+    .float-rec-desc {
+      font-size: 10.5px;
+      line-height: 1.4;
+      color: rgba(245, 240, 230, 0.6);
+    }
+    .float-rec-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .float-rec-price {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--yellow);
+    }
+    .float-rec-actions {
+      display: flex;
+      gap: 6px;
+    }
+    .float-rec-btn {
+      padding: 4px 10px;
+      font-size: 9.5px;
+      font-weight: 600;
+      border-radius: var(--r);
+      border: none;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .float-rec-btn-add {
+      background: var(--cream);
+      color: var(--ink);
+    }
+    .float-rec-btn-add:hover {
+      background: var(--yellow);
+    }
+    .float-rec-btn-book {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: var(--cream);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .float-rec-btn-book:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255,255,255,0.4);
+    }
+
+    /* Floating input bar */
+    .ai-float-input-bar {
+      padding: 12px 16px;
+      background: transparent;
+      display: flex;
+      position: relative;
+    }
+    .ai-float-input-container {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      padding: 4px 4px 4px 14px;
+      transition: all 0.3s var(--ease);
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .ai-float-input-container:focus-within {
+      border-color: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.05);
+    }
+    .ai-float-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--cream);
+      font-family: var(--sans);
+      font-size: 12px;
+      outline: none;
+      padding: 4px 0;
+    }
+    .ai-float-send {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--olive);
+      border: none;
+      color: var(--cream);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      flex-shrink: 0;
+    }
+    .ai-float-send:hover {
+      background: var(--sage);
+      transform: scale(1.05);
+    }
+
+    /* SUGGESTION CHIPS FOR FLOATING WIDGET */
+    .float-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.08);
+    }
+    .float-suggest-label {
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: rgba(245, 240, 230, 0.4);
+      width: 100%;
+    }
+    .float-suggest-tag {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 4px 8px;
+      color: rgba(245, 240, 230, 0.8);
+      font-size: 10px;
+      font-family: var(--sans);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .float-suggest-tag:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--cream);
+      transform: translateY(-1px);
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const trigger = document.getElementById('ai-float-trigger');
+      const win = document.getElementById('ai-float-window');
+      const closeBtn = document.getElementById('ai-float-close');
+      const input = document.getElementById('ai-float-input');
+      const sendBtn = document.getElementById('ai-float-send');
+      const messagesContainer = document.getElementById('ai-float-messages');
+
+      let history = [];
+      try {
+        const stored = localStorage.getItem('hrd_float_history_v2');
+        if (stored) history = JSON.parse(stored);
+      } catch(e) {}
+
+      if (history.length === 0) {
+        history.push({
+          role: 'bot',
+          text: "👋 What's your mood today?",
+          is_welcome: true
+        });
+        localStorage.setItem('hrd_float_history_v2', JSON.stringify(history));
+      }
+
+      // Toggle action
+      trigger.addEventListener('click', () => {
+        const isOpen = win.classList.toggle('show');
+        if (isOpen) {
+          setTimeout(() => input.focus(), 150);
+          renderFloatMessages();
+        }
+      });
+
+      closeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        win.classList.remove('show');
+      });
+
+      function renderFloatMessages() {
+        messagesContainer.innerHTML = '';
+        history.forEach(msg => {
+          const row = document.createElement('div');
+          row.className = `float-msg-row ${msg.role === 'user' ? 'float-msg-row--user' : ''}`;
+
+          const avatar = document.createElement('div');
+          avatar.className = `float-msg-avatar ${msg.role === 'user' ? '' : 'float-msg-avatar--bot'}`;
+          avatar.textContent = msg.role === 'user' ? '👤' : '🤖';
+
+          const bubble = document.createElement('div');
+          bubble.className = `float-msg-bubble ${msg.role === 'user' ? 'float-msg-bubble--user' : 'float-msg-bubble--bot'}`;
+
+          const pText = document.createElement('div');
+          pText.innerHTML = msg.text.replace(/\n/g, '<br>');
+          bubble.appendChild(pText);
+
+          // Render suggestion chips in floating widget
+          if (msg.role === 'bot' && msg.is_welcome) {
+            const suggestions = document.createElement('div');
+            suggestions.className = 'float-suggestions';
+            suggestions.innerHTML = `
+              <div class="float-suggest-label">Try asking:</div>
+              <button class="float-suggest-tag" data-query="Something cold & sweet">Cold & Sweet</button>
+              <button class="float-suggest-tag" data-query="Coffee & dessert">Coffee & Dessert</button>
+              <button class="float-suggest-tag" data-query="Healthy breakfast">Healthy</button>
+              <button class="float-suggest-tag" data-query="Spicy snacks">Spicy</button>
+              <button class="float-suggest-tag" data-query="Something under ₹250">Under ₹250</button>
+              <button class="float-suggest-tag" data-query="Surprise me">Surprise me</button>
+            `;
+            bubble.appendChild(suggestions);
+          }
+
+          if (msg.recommended_items && msg.recommended_items.length > 0) {
+            const list = document.createElement('div');
+            list.className = 'float-rec-list';
+
+            msg.recommended_items.forEach(item => {
+              const card = document.createElement('div');
+              card.className = 'float-rec-item';
+              const itemDesc = item.description || "Botanical choice.";
+              const itemImg = item.image_url || "/static/img/default_menu.jpg";
+              card.innerHTML = `
+                <div class="float-rec-card-image-wrap">
+                  <img src="${itemImg}" class="float-rec-card-image" alt="${item.name}">
+                </div>
+                <div class="float-rec-card-info">
+                  <div class="float-rec-title">${item.name}</div>
+                  <div class="float-rec-desc">${itemDesc}</div>
+                  <div class="float-rec-footer">
+                    <div class="float-rec-price">₹${item.price}</div>
+                    <div class="float-rec-actions">
+                      <button class="float-rec-btn float-rec-btn-add" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}">+ Cart</button>
+                      <a href="/customer/book" class="float-rec-btn float-rec-btn-book">Book</a>
+                    </div>
+                  </div>
+                </div>
+              `;
+              list.appendChild(card);
+            });
+            bubble.appendChild(list);
+          }
+
+          row.appendChild(avatar);
+          row.appendChild(bubble);
+          messagesContainer.appendChild(row);
+        });
+
+        // Add to cart click event binding
+        document.querySelectorAll('.float-rec-btn-add').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = parseInt(btn.getAttribute('data-id'));
+            const name = btn.getAttribute('data-name');
+            const price = parseFloat(btn.getAttribute('data-price'));
+
+            let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+            const existing = cart.find(x => x.id === id);
+            if (existing) {
+              existing.quantity++;
+            } else {
+              const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+              cart.push({ id, name, price, quantity: 1, dateAdded: dateStr });
+            }
+            localStorage.setItem('cafe_cart', JSON.stringify(cart));
+
+            // Custom toast notification trigger (checking if helper function exists on current window or page)
+            if (typeof window.showToast === 'function') {
+              window.showToast(`${name} added to cart!`);
+            } else {
+              alert(`${name} added to cart!`);
+            }
+            
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => btn.style.transform = 'none', 100);
+            
+            window.dispatchEvent(new Event('cartUpdate'));
+          });
+        });
+
+        // Bind dynamic suggestion tag click triggers in floating widget
+        document.querySelectorAll('.float-suggest-tag').forEach(tag => {
+          tag.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const query = tag.getAttribute('data-query');
+            input.value = query;
+            sendFloatMessage();
+          });
+        });
+
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      async function sendFloatMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        input.value = '';
+        input.disabled = true;
+        sendBtn.disabled = true;
+
+        history.push({ role: 'user', text: text });
+        localStorage.setItem('hrd_float_history_v2', JSON.stringify(history));
+        renderFloatMessages();
+
+        const typingRow = document.createElement('div');
+        typingRow.className = 'float-msg-row';
+        typingRow.id = 'float-typing-row';
+        typingRow.innerHTML = `
+          <div class="float-msg-avatar float-msg-avatar--bot">🤖</div>
+          <div class="float-msg-bubble float-msg-bubble--bot" style="display: flex; align-items: center; gap: 4px; padding: 10px 14px;">
+            <span class="float-typing-dot"></span>
+            <span class="float-typing-dot"></span>
+            <span class="float-typing-dot"></span>
+          </div>
+        `;
+        messagesContainer.appendChild(typingRow);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+          const response = await fetch('/ai/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              message: text,
+              history: history.slice(0, -1).map(h => ({ role: h.role, text: h.text }))
+            })
+          });
+
+          const indicator = document.getElementById('float-typing-row');
+          if (indicator) indicator.remove();
+
+          if (response.ok) {
+            const resData = await response.json();
+            if (resData.success && resData.response) {
+              history.push({
+                role: 'bot',
+                text: resData.response,
+                recommended_items: resData.recommended_items || []
+              });
+            } else {
+              history.push({
+                role: 'bot',
+                text: resData.message || "AI Assistant currently offline."
+              });
+            }
+          } else {
+            history.push({ role: 'bot', text: "AI Assistant currently offline." });
+          }
+        } catch(e) {
+          const indicator = document.getElementById('float-typing-row');
+          if (indicator) indicator.remove();
+          history.push({ role: 'bot', text: "AI Assistant currently offline." });
+        }
+
+        localStorage.setItem('hrd_float_history_v2', JSON.stringify(history));
+        input.disabled = false;
+        sendBtn.disabled = false;
+        renderFloatMessages();
+        input.focus();
+      }
+
+      sendBtn.addEventListener('click', () => sendFloatMessage());
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          sendFloatMessage();
+        }
+      });
+
+      // Bind window global toast function if not already present
+      window.showToast = function(message) {
+        let toastEl = document.getElementById('global-toast-message');
+        if (!toastEl) {
+          const container = document.createElement('div');
+          container.id = 'global-toast-container';
+          container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:10005;pointer-events:none;';
+          document.body.appendChild(container);
+          
+          toastEl = document.createElement('div');
+          toastEl.id = 'global-toast-message';
+          toastEl.style.cssText = 'pointer-events:auto;display:flex;align-items:center;gap:10px;padding:14px 20px;background:rgba(28,26,20,0.85);backdrop-filter:blur(15px);-webkit-backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.12);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.3);color:#f5f0e6;font-family:sans-serif;font-size:12px;opacity:0;transform:translateX(100px);transition:all 0.4s cubic-bezier(0.16,1,0.3,1);';
+          container.appendChild(toastEl);
+        }
+        
+        toastEl.innerHTML = `<span style="color:#c9a227;">✨</span> <span>${message}</span>`;
+        setTimeout(() => toastEl.style.cssText += 'opacity:1;transform:translateX(0);', 10);
+        setTimeout(() => {
+          toastEl.style.cssText += 'opacity:0;transform:translateX(100px);';
+        }, 2500);
+      };
+    });
+  </script>
+  {% endif %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

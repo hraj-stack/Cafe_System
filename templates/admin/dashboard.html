@@ -1,0 +1,1245 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-page" style="background: var(--cream); padding: 20px 0; min-height: 100vh; font-family: var(--sans);">
+  <div class="container" style="max-width: var(--container-max); margin: 0 auto; padding: 0 var(--container-pad);">
+    
+    <!-- Top toolbar/Header -->
+    <div style="border-bottom: 2px solid var(--sand); padding-bottom: 8px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--ink); margin: 0;">Admin <em>Command Center</em></h1>
+        <p style="font-size: 11px; color: var(--ink-45); margin: 0;">System overview, prediction models, and live invoicing center.</p>
+      </div>
+      <div style="font-family: var(--mono); font-size: 10px; background: var(--fog); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--sand); color: var(--ink-60); display: flex; align-items: center; gap: 6px;">
+        <span style="display: inline-block; width: 6px; height: 6px; background: #7a9a6a; border-radius: 50%;" class="pulse-dot"></span>
+        Live Analytics Active
+      </div>
+    </div>
+
+    <!-- Row 1: KPI Tiles (Orders & Profits) -->
+    <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px; margin-bottom: 16px;" class="admin-top-grid">
+      
+      <!-- 1. Total Orders Tile (Section 1) -->
+      <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); box-shadow: var(--shadow-sm); overflow: hidden; position: relative;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--olive);"></div>
+        <div class="card-body" style="padding: 16px;">
+          <h3 style="font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 12px;">Total Orders Overview</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <div style="background: var(--fog); padding: 10px; border-radius: var(--r); border: 1px solid var(--sand); text-align: center;">
+              <div style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45);">Today</div>
+              <div style="font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); margin-top: 2px;" id="orders-today-val">{{ stats.orders_today }}</div>
+            </div>
+            <div style="background: var(--fog); padding: 10px; border-radius: var(--r); border: 1px solid var(--sand); text-align: center;">
+              <div style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45);">This Week</div>
+              <div style="font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); margin-top: 2px;" id="orders-week-val">{{ stats.orders_week }}</div>
+            </div>
+            <div style="background: var(--fog); padding: 10px; border-radius: var(--r); border: 1px solid var(--sand); text-align: center;">
+              <div style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45);">This Month</div>
+              <div style="font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); margin-top: 2px;" id="orders-month-val">{{ stats.orders_month }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Profit & Sales Tile (Section 4) -->
+      <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); box-shadow: var(--shadow-sm); overflow: hidden; position: relative;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--clay);"></div>
+        <div class="card-body" style="padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h3 style="font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--ink); margin: 0;">Profit & Sales Metrics</h3>
+            <span style="font-family: var(--mono); font-size: 8px; color: var(--olive); font-weight: 600;" id="sales-realtime-badge">▲ Live Updates Active</span>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+            <!-- Sales Count -->
+            <div style="background: rgba(28,26,20,0.02); border: 1px solid var(--sand); padding: 8px 10px; border-radius: var(--r);">
+              <div style="font-family: var(--mono); font-size: 7.5px; text-transform: uppercase; color: var(--ink-45);">Daily / Monthly Sales</div>
+              <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin-top: 2px;" id="profit-sales-val">{{ stats.orders_today }} / {{ stats.orders_month }}</div>
+            </div>
+            <!-- Total Revenue -->
+            <div style="background: rgba(28,26,20,0.02); border: 1px solid var(--sand); padding: 8px 10px; border-radius: var(--r);">
+              <div style="font-family: var(--mono); font-size: 7.5px; text-transform: uppercase; color: var(--ink-45);">Revenue (Today/Month)</div>
+              <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin-top: 2px;" id="profit-rev-val">₹{{ stats.revenue_today|int }} / ₹{{ stats.revenue_month|int }}</div>
+            </div>
+            <!-- Net Profit -->
+            <div style="background: rgba(28,26,20,0.02); border: 1px solid var(--sand); padding: 8px 10px; border-radius: var(--r);">
+              <div style="font-family: var(--mono); font-size: 7.5px; text-transform: uppercase; color: var(--ink-45);">Net Profit (Today/Month)</div>
+              <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--olive); margin-top: 2px;" id="profit-net-val">₹{{ stats.profit_today|int }} / ₹{{ stats.profit_month|int }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Row 2: Analytics & Operations (Customer Predictions & Invoicing) -->
+    <div style="display: grid; grid-template-columns: 1fr 1.3fr; gap: 16px;" class="admin-main-grid">
+      
+      <!-- 3. Customer Prediction Tile (Section 3) -->
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); box-shadow: var(--shadow-sm); overflow: hidden; position: relative;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--amber);"></div>
+          <div class="card-body" style="padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+              <h3 style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin: 0;">Customer Predictions</h3>
+              <span style="font-family: var(--mono); font-size: 9px; font-weight: 700; color: {% if growth_pct >= 0 %}var(--olive){% else %}var(--clay){% endif %};">
+                {% if growth_pct >= 0 %}▲ +{{ growth_pct }}% Growth{% else %}▼ {{ growth_pct }}% Decline{% endif %}
+              </span>
+            </div>
+
+            <!-- Prediction Tabs Header -->
+            <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--sand); margin-bottom: 12px; padding-bottom: 4px;">
+              <button onclick="switchPredictionTab('forecast')" id="tab-forecast-btn" style="background: transparent; border: none; font-family: var(--sans); font-size: 11.5px; font-weight: 700; color: var(--ink); padding: 4px 8px; border-bottom: 2px solid var(--amber); cursor: pointer;">Forecasting Dashboard</button>
+              <button onclick="switchPredictionTab('historical')" id="tab-historical-btn" style="background: transparent; border: none; font-family: var(--sans); font-size: 11.5px; font-weight: 500; color: var(--ink-45); padding: 4px 8px; border-bottom: 2px solid transparent; cursor: pointer;">Manage Historical Data</button>
+            </div>
+            
+            <!-- Tab 1: Forecasting Dashboard -->
+            <div id="prediction-forecast-tab" style="display: block;">
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+                <!-- Tomorrow -->
+                <div style="background: var(--fog); border: 1px solid var(--sand); border-radius: var(--r); padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-family: var(--sans); font-size: 11px; font-weight: 700; color: var(--ink);">Tomorrow's Forecast</span>
+                    <span style="font-family: var(--mono); font-size: 9px; font-weight: 700; color: {% if tomorrow_forecast.trend == 'up' %}var(--olive){% elif tomorrow_forecast.trend == 'down' %}var(--clay){% else %}var(--yellow){% endif %};">
+                      {% if tomorrow_forecast.trend == 'up' %}▲ Expecting Increase{% elif tomorrow_forecast.trend == 'down' %}▼ Expecting Decrease{% else %}◆ Expecting Stable{% endif %}
+                    </span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center;">
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Guests</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ tomorrow_forecast.customers }}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Orders</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ tomorrow_forecast.orders }}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Reservations</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ tomorrow_forecast.reservations }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Next 3 Days -->
+                <div style="background: var(--fog); border: 1px solid var(--sand); border-radius: var(--r); padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-family: var(--sans); font-size: 11px; font-weight: 700; color: var(--ink);">Next 3 Days (Total)</span>
+                    <span style="font-family: var(--mono); font-size: 9px; font-weight: 700; color: {% if three_day_forecast.trend == 'up' %}var(--olive){% elif three_day_forecast.trend == 'down' %}var(--clay){% else %}var(--yellow){% endif %};">
+                      {% if three_day_forecast.trend == 'up' %}▲ Expecting Increase{% elif three_day_forecast.trend == 'down' %}▼ Expecting Decrease{% else %}◆ Expecting Stable{% endif %}
+                    </span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center;">
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Guests</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ three_day_forecast.customers }}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Orders</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ three_day_forecast.orders }}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Reservations</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ three_day_forecast.reservations }}</div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Next 7 Days -->
+                <div style="background: var(--fog); border: 1px solid var(--sand); border-radius: var(--r); padding: 10px; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-family: var(--sans); font-size: 11px; font-weight: 700; color: var(--ink);">Next 7 Days (Total)</span>
+                    <span style="font-family: var(--mono); font-size: 9px; font-weight: 700; color: {% if seven_day_forecast.trend == 'up' %}var(--olive){% elif seven_day_forecast.trend == 'down' %}var(--clay){% else %}var(--yellow){% endif %};">
+                      {% if seven_day_forecast.trend == 'up' %}▲ Expecting Increase{% elif seven_day_forecast.trend == 'down' %}▼ Expecting Decrease{% else %}◆ Expecting Stable{% endif %}
+                    </span>
+                  </div>
+                  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; text-align: center;">
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Guests</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ seven_day_forecast.customers }}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Orders</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ seven_day_forecast.orders }}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.6); padding: 6px; border-radius: 4px; border: 1px solid rgba(28,26,20,0.05);">
+                      <div style="font-family: var(--mono); font-size: 7px; text-transform: uppercase; color: var(--ink-45);">Reservations</div>
+                      <div style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">{{ seven_day_forecast.reservations }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Visual Predictions Charts -->
+              <div style="margin-bottom: 12px;">
+                <h4 style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); margin-bottom: 6px;">7-Day Guest Trends</h4>
+                <div style="position: relative; height: 90px; width: 100%;">
+                  <canvas id="chart-next-7-days"></canvas>
+                </div>
+              </div>
+
+              <div>
+                <h4 style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); margin-bottom: 6px;">30-Day Projected Averages (Weekly)</h4>
+                <div style="position: relative; height: 90px; width: 100%;">
+                  <canvas id="chart-next-30-days"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Manage Historical Data -->
+            <div id="prediction-historical-tab" style="display: none;">
+              <div style="background: var(--fog); border: 1px solid var(--sand); border-radius: var(--r); padding: 10px; margin-bottom: 12px; font-size: 11px;">
+                <h4 style="font-family: var(--serif); font-size: 12px; font-weight: 700; color: var(--ink); margin-top: 0; margin-bottom: 8px;">Add / Override Daily Record</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                  <div>
+                    <label style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 2px;">Date</label>
+                    <input type="date" id="hist-date-input" class="form-input" style="padding: 4px 6px; font-size: 11px; width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 2px;">Customers</label>
+                    <input type="number" id="hist-customers-input" class="form-input" min="0" placeholder="Guests" style="padding: 4px 6px; font-size: 11px; width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 2px;">Orders</label>
+                    <input type="number" id="hist-orders-input" class="form-input" min="0" placeholder="Orders count" style="padding: 4px 6px; font-size: 11px; width: 100%;">
+                  </div>
+                  <div>
+                    <label style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 2px;">Reservations</label>
+                    <input type="number" id="hist-res-input" class="form-input" min="0" placeholder="Bookings count" style="padding: 4px 6px; font-size: 11px; width: 100%;">
+                  </div>
+                </div>
+                <div style="display: flex; gap: 6px;">
+                  <button onclick="saveHistoricalEntry()" class="btn-primary" style="flex: 1; padding: 6px; font-size: 10px; font-family: var(--mono); border-radius: var(--r);">Save Entry</button>
+                  <button onclick="retrainModel()" class="btn-outline-dark" style="flex: 1; padding: 6px; font-size: 10px; font-family: var(--mono); border-radius: var(--r); background: #ffffff;">Retrain XGBoost</button>
+                </div>
+                <div id="hist-status-msg" style="display: none; margin-top: 6px; font-family: var(--mono); font-size: 8.5px; text-align: center; font-weight: 600;"></div>
+              </div>
+
+              <div>
+                <h4 style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); margin-bottom: 6px;">Saved Historical Records</h4>
+                <div style="max-height: 220px; overflow-y: auto; border: 1px solid var(--sand); border-radius: var(--r); background: #ffffff;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; text-align: left;" id="historical-records-table">
+                    <thead>
+                      <tr style="border-bottom: 1px solid var(--sand); font-family: var(--mono); font-size: 8.5px; color: var(--ink-45); background: var(--fog);">
+                        <th style="padding: 6px 8px;">Date</th>
+                        <th style="padding: 6px 8px; text-align: center;">Cust</th>
+                        <th style="padding: 6px 8px; text-align: center;">Ord</th>
+                        <th style="padding: 6px 8px; text-align: center;">Res</th>
+                        <th style="padding: 6px 8px; text-align: center;">Edit</th>
+                      </tr>
+                    </thead>
+                    <tbody id="historical-records-body">
+                      <!-- Loaded via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Billing Summary Tile (Section 2) -->
+      <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); box-shadow: var(--shadow-sm); overflow: hidden; align-self: start;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--olive);"></div>
+        <div class="card-body" style="padding: 16px;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div>
+              <h3 style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin: 0;">Billing Summary</h3>
+              <p style="font-size: 10px; color: var(--ink-45); margin: 0;">Instant invoice builder & customer purchase archives.</p>
+            </div>
+            <button id="toggle-billing-btn" onclick="toggleBillingDetails()" class="btn-outline-dark" style="padding: 4px 8px; font-size: 9px; font-family: var(--mono); border-radius: var(--r); cursor: pointer;">
+              Expand Billing Summary
+            </button>
+          </div>
+
+          <!-- Customer Search Widget (Requirement 2) -->
+          <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; position: relative;">
+            <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45);">Search Customer (Name or Email)</label>
+            <div style="display: flex; gap: 8px; position: relative; width: 100%;">
+              <input type="text" id="cust-search-input" onkeyup="handleCustomerSearch()" class="form-input" placeholder="Enter name or email..." style="padding: 8px 12px; font-size: 12px; background: var(--fog); width: 100%;">
+            </div>
+            <!-- Search Results Dropdown -->
+            <div id="search-results-box" style="display: none; position: absolute; top: 48px; left: 0; right: 0; background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r); z-index: 50; box-shadow: var(--shadow-md); max-height: 150px; overflow-y: auto;">
+              <!-- Matches loaded by JS -->
+            </div>
+          </div>
+
+          <!-- Active Selected Customer Profile Details -->
+          <div id="selected-customer-box" style="display: none; background: rgba(74,92,58,0.05); border: 1px solid var(--olive); border-radius: var(--r); padding: 10px; margin-bottom: 12px; font-size: 11px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div>
+                <strong>Active Customer:</strong> <span id="selected-cust-name" style="font-weight: 600;"></span>
+                <span id="selected-cust-email" style="color: var(--ink-60); margin-left: 6px;"></span>
+              </div>
+              <button onclick="clearSelectedCustomer()" style="background: transparent; border: none; color: var(--clay); cursor: pointer; font-size: 10px; font-family: var(--mono);">Clear</button>
+            </div>
+            <!-- Selected customer purchase history (Requirement 2) -->
+            <div style="border-top: 1px solid var(--sand); padding-top: 8px; margin-top: 8px;">
+              <div style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); margin-bottom: 4px;">Purchase Archives</div>
+              <div id="customer-history-logs" style="max-height: 80px; overflow-y: auto; font-size: 10px; display: flex; flex-direction: column; gap: 4px;">
+                <!-- Logs loaded by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Billing Generator Form (Requirement 2) -->
+          <div style="background: rgba(28,26,20,0.02); border: 1px solid var(--sand); border-radius: var(--r); padding: 12px; margin-bottom: 12px;">
+            <h4 style="font-family: var(--serif); font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 8px;">Generate New Bill</h4>
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 8px;">
+              <div>
+                <label style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">Menu Item</label>
+                <select id="billing-item-select" class="form-select" style="padding: 6px; font-size: 11.5px; background: var(--fog);">
+                  {% for item in menu_items %}
+                    <option value="{{ item.item_id }}" data-price="{{ item.price }}">{{ item.name }} (₹{{ item.price|int }})</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div>
+                <label style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">Qty</label>
+                <input type="number" id="billing-qty-input" class="form-input" min="1" value="1" style="padding: 6px; font-size: 11.5px; background: var(--fog);">
+              </div>
+              <button onclick="addBillingItem()" class="btn-primary" style="padding: 6px 12px; font-size: 11px; height: 32px; border-radius: var(--r); font-family: var(--mono);">Add</button>
+            </div>
+
+            <!-- Current Invoice Items Draft -->
+            <div style="margin-top: 10px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; text-align: left;" id="draft-bill-table">
+                <thead>
+                  <tr style="border-bottom: 1px dashed var(--sand); font-family: var(--mono); font-size: 8px; color: var(--ink-45);">
+                    <th>Item</th>
+                    <th style="text-align: center;">Qty</th>
+                    <th style="text-align: right;">Total</th>
+                    <th style="text-align: right;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="draft-items-body">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+
+              <!-- Discount Input & Totals breakdown -->
+              <div style="display: flex; gap: 8px; align-items: center; margin-top: 10px; border-top: 1px dashed var(--sand); padding-top: 8px;">
+                <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45);">Discount %:</label>
+                <input type="number" id="billing-discount-input" oninput="calculateDraftTotals()" class="form-input" min="0" max="100" value="0" style="padding: 4px 6px; font-size: 11px; width: 60px; background: var(--fog);">
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 4px; border-top: 1px solid var(--sand); padding-top: 8px; margin-top: 8px; font-size: 11px; font-family: var(--mono);">
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Subtotal:</span>
+                  <span id="draft-bill-subtotal">₹0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>Discount:</span>
+                  <span id="draft-bill-discount">₹0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span>GST (5%):</span>
+                  <span id="draft-bill-gst">₹0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-family: var(--serif); font-weight: 700; font-size: 13.5px; color: var(--ink); border-top: 1px dashed var(--sand); padding-top: 6px;">
+                  <span>Grand Total:</span>
+                  <span id="draft-bill-total">₹0</span>
+                </div>
+              </div>
+            </div>
+
+            <button onclick="submitBillingOrder()" class="form-submit" id="generate-bill-btn" style="margin-top: 12px; padding: 10px; font-size: 10px; font-family: var(--mono);" disabled>Generate Bill & Place Order</button>
+          </div>
+
+          <!-- Expanded View Section (Detailed billing logs & history) -->
+          <!-- Hidden by default, toggled via Expand/Collapse (Requirement 2 & 15) -->
+          <div id="expanded-billing-area" style="display: none; border-top: 1px solid var(--sand); padding-top: 12px; margin-top: 12px;">
+            <h4 style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); margin-bottom: 8px;">Billing Records Archive</h4>
+            <div style="max-height: 150px; overflow-y: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; text-align: left;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--sand); font-family: var(--mono); font-size: 8px; color: var(--ink-45);">
+                    <th>ID</th>
+                    <th>User</th>
+                    <th>Amount</th>
+                    <th style="text-align: right;">Billing Invoice</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for order in all_orders %}
+                    <tr style="border-bottom: 1px solid rgba(28,26,20,0.05);">
+                      <td style="padding: 6px 0; font-family: var(--mono); font-weight: 700;">
+                        #{{ order.order_id }}
+                        {% if order.status == 'Cancelled' %}
+                          <span style="font-family: var(--sans); font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 600; background: rgba(158, 61, 40, 0.1); color: #9e3d28; text-transform: uppercase; margin-left: 6px; letter-spacing: 0.05em;">Cancelled</span>
+                        {% endif %}
+                      </td>
+                      <td style="padding: 6px 0; color: var(--ink-80);">{{ order.user.name }}</td>
+                      <td style="padding: 6px 0; font-weight: 700; font-family: var(--serif);">₹{{ order.amount|int }}</td>
+                      <td style="padding: 6px 0; text-align: right;">
+                        <button onclick="viewInvoice('{{ order.order_id }}')" class="btn-outline-dark" style="padding: 3px 6px; font-size: 8px; font-family: var(--mono); border-radius: var(--r); cursor: pointer; border: 1px solid rgba(28,26,20,0.2); background: transparent;">
+                          View Bill
+                        </button>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- SECTION B: Digital Bill Modal (Expanded Billing details - Glassmorphism design) -->
+<div id="invoice-modal" style="display: none; position: fixed; inset: 0; background: rgba(28, 26, 20, 0.45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+  <div class="card" style="background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.6); width: 100%; max-width: 440px; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15); max-height: 85vh; display: flex; flex-direction: column;">
+    
+    <!-- Modal Header -->
+    <div style="background: var(--ink); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; color: var(--cream);">
+      <h3 style="font-family: var(--serif); font-size: 15px; margin: 0; font-weight: 700; letter-spacing: 0.03em;">Billing Summary Invoice</h3>
+      <button onclick="closeInvoice()" style="background: transparent; border: none; color: var(--cream); font-size: 22px; cursor: pointer; line-height: 1;">&times;</button>
+    </div>
+    
+    <!-- Printable Invoice Body -->
+    <div style="padding: 16px; overflow-y: auto; flex-grow: 1;">
+      <div id="invoice-print-area" style="background: #ffffff; border: 1px solid var(--sand); border-radius: 8px; padding: 16px; font-family: var(--sans); color: var(--ink);">
+        <div class="receipt-header" style="text-align: center; margin-bottom: 12px; border-bottom: 2px dashed var(--sand); padding-bottom: 10px;">
+          <h2 style="font-family: var(--serif); font-size: 17px; font-weight: 900; color: var(--ink); margin: 0; text-transform: uppercase;">HRD CAFE</h2>
+          <p style="font-size: 8.5px; color: var(--ink-60); margin: 2px 0 0 0; font-family: var(--mono); text-transform: uppercase;">Botanical Ferments & Signature Roasts</p>
+        </div>
+
+        <div style="font-size: 10px; margin-bottom: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; font-family: var(--mono); color: var(--ink-80); border-bottom: 1px solid var(--sand); padding-bottom: 8px;">
+          <div>
+            <strong>Order ID:</strong> #<span id="bill-order-id"></span>
+          </div>
+          <div style="text-align: right;">
+            <strong>Status:</strong> <span id="bill-payment-status" style="font-weight: 700;">Completed</span>
+          </div>
+          <div style="grid-column: span 2;">
+            <strong>Customer:</strong> <span id="bill-customer-name"></span>
+            <div id="bill-customer-contact" style="font-size: 9px; color: var(--ink-60); margin-top: 2px;"></div>
+          </div>
+          <div style="grid-column: span 2;">
+            <strong>Date:</strong> <span id="bill-datetime"></span>
+          </div>
+        </div>
+
+        <!-- Reservation Details Widget -->
+        <div id="bill-reservation-panel" style="font-size: 10px; background: rgba(74,92,58,0.05); border: 1px solid rgba(74,92,58,0.15); border-radius: 6px; padding: 8px 10px; margin-bottom: 12px;">
+          <div style="font-weight: 700; color: var(--olive); margin-bottom: 4px; display: flex; justify-content: space-between;">
+            <span>Reservation:</span>
+            <span id="bill-reservation-status">No Reservation</span>
+          </div>
+          <div id="bill-reservation-details" style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 9px; color: var(--ink-80); font-family: var(--mono);">
+            <div>Date: <span id="bill-res-date">-</span></div>
+            <div style="text-align: right;">Time: <span id="bill-res-time">-</span></div>
+            <div>Table/Seat: <span id="bill-res-seat">-</span></div>
+            <div style="text-align: right;">Guests: <span id="bill-res-guests">-</span></div>
+          </div>
+        </div>
+
+        <div class="receipt-divider" style="display: none;"></div>
+
+        <table style="width: 100%; border-collapse: collapse; font-size: 10.5px; margin-bottom: 12px; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--sand); font-family: var(--mono); color: var(--ink-45); font-size: 8px; text-transform: uppercase;">
+              <th style="padding: 4px 0;">Item Name</th>
+              <th style="padding: 4px 0; text-align: center; width: 40px;">Qty</th>
+              <th style="padding: 4px 0; text-align: right; width: 65px;">Price</th>
+              <th style="padding: 4px 0; text-align: right; width: 70px;">Total</th>
+            </tr>
+          </thead>
+          <tbody id="bill-items-body">
+            <!-- Populated by JS -->
+          </tbody>
+        </table>
+
+        <div style="border-top: 1px solid var(--sand); padding-top: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: var(--ink-80); font-family: var(--mono);">
+          <div style="display: flex; justify-content: space-between;">
+            <span>Subtotal:</span>
+            <span id="bill-subtotal">₹0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;" id="bill-discount-row">
+            <span>Discount (<span id="bill-discount-pct">0</span>%):</span>
+            <span id="bill-discount">₹0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>Taxes (GST 5%):</span>
+            <span id="bill-taxes">₹0</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--sand); padding-top: 6px; font-family: var(--serif); font-size: 13.5px; font-weight: 700; color: var(--ink);">
+            <span>Grand Total:</span>
+            <span id="bill-total">₹0</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Receipt Delivery Options -->
+      <div style="margin-top: 14px; border-top: 1px solid var(--sand); padding-top: 10px;" id="receipt-delivery-section">
+        <div style="font-family: var(--mono); font-size: 8px; text-transform: uppercase; color: var(--ink-45); margin-bottom: 6px;">Receipt Delivery Options</div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+          <button onclick="sendReceipt('email')" class="btn-outline-dark" style="padding: 6px; font-size: 9px; border-radius: var(--r); font-family: var(--mono); cursor: pointer; text-align: center; background: #ffffff;">✉ Email</button>
+          <button onclick="sendReceipt('sms')" class="btn-outline-dark" style="padding: 6px; font-size: 9px; border-radius: var(--r); font-family: var(--mono); cursor: pointer; text-align: center; background: #ffffff;">💬 SMS</button>
+          <button onclick="sendReceipt('whatsapp')" class="btn-outline-dark" style="padding: 6px; font-size: 9px; border-radius: var(--r); font-family: var(--mono); cursor: pointer; text-align: center; background: #ffffff;">📱 WhatsApp</button>
+        </div>
+        <div id="receipt-notify-msg" style="display: none; margin-top: 8px; font-family: var(--mono); font-size: 9.5px; text-align: center; color: var(--olive); font-weight: 600;"></div>
+      </div>
+    </div>
+    
+    <!-- Modal Footer Actions -->
+    <div style="background: rgba(28,26,20,0.03); padding: 10px 18px; display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid rgba(28,26,20,0.08);">
+      <button onclick="closeInvoice()" class="btn-outline-dark" style="padding: 6px 12px; font-size: 9.5px; border-radius: var(--r); cursor: pointer; background: #ffffff;">Close</button>
+      <button onclick="printInvoice()" class="btn-primary" style="padding: 6px 12px; font-size: 9.5px; border-radius: var(--r); cursor: pointer; font-family: var(--mono); display: flex; align-items: center; gap: 4px;">
+        <span>🖨️ Print Receipt</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+    #invoice-print-area, #invoice-print-area * {
+      visibility: visible;
+    }
+    #invoice-print-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 80mm;
+      padding: 4mm;
+      background: white !important;
+      color: black !important;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 11px;
+      line-height: 1.3;
+      border: none !important;
+      box-shadow: none !important;
+    }
+    @page {
+      size: 80mm auto;
+      margin: 0;
+    }
+    #invoice-print-area .receipt-header {
+      border-bottom: 1px dashed #000 !important;
+      padding-bottom: 8px !important;
+    }
+    #invoice-print-area .receipt-divider {
+      display: block !important;
+      border-top: 1px dashed #000 !important;
+      margin: 8px 0 !important;
+    }
+    #invoice-print-area #bill-reservation-panel {
+      background: none !important;
+      border: 1px dashed #000 !important;
+      border-radius: 0 !important;
+      padding: 6px !important;
+    }
+    #invoice-print-area #bill-reservation-status {
+      color: black !important;
+    }
+    #invoice-print-area table {
+      width: 100% !important;
+      font-size: 11px !important;
+      margin-bottom: 8px !important;
+    }
+    #invoice-print-area td, #invoice-print-area th {
+      padding: 3px 0 !important;
+      border-bottom: 1px dashed #eee !important;
+    }
+    #invoice-print-area th {
+      border-bottom: 1px solid #000 !important;
+    }
+    #invoice-print-area #bill-discount-row {
+      font-weight: bold;
+    }
+    #invoice-print-area div[style*="border-top"] {
+      border-top: 1px dashed #000 !important;
+    }
+    #invoice-print-area span[id*="total"] {
+      font-weight: bold !important;
+    }
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+  }
+  .pulse-dot {
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN for predictions -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  let chart7Days = null;
+  let chart30Days = null;
+
+  function initCharts(data7Days, data30Days) {
+    const ctx7 = document.getElementById('chart-next-7-days').getContext('2d');
+    chart7Days = new Chart(ctx7, {
+      type: 'line',
+      data: {
+        labels: data7Days.map(d => d.display_date),
+        datasets: [{
+          label: 'Guests',
+          data: data7Days.map(d => d.expected_guests),
+          borderColor: '#4a5c3a', // var(--olive)
+          backgroundColor: 'rgba(74, 92, 58, 0.05)',
+          borderWidth: 2,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(28, 26, 20, 0.03)' },
+            ticks: { font: { size: 8 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 8 } }
+          }
+        }
+      }
+    });
+
+    const ctx30 = document.getElementById('chart-next-30-days').getContext('2d');
+    chart30Days = new Chart(ctx30, {
+      type: 'bar',
+      data: {
+        labels: data30Days.map(d => d.label),
+        datasets: [{
+          label: 'Average Guests',
+          data: data30Days.map(d => d.expected_guests),
+          backgroundColor: '#c8602a', // var(--amber)
+          borderRadius: 3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(28, 26, 20, 0.03)' },
+            ticks: { font: { size: 8 } }
+          },
+          x: {
+            grid: { display: false },
+            ticks: { font: { size: 8 } }
+          }
+        }
+      }
+    });
+  }
+
+  // Prediction tabs switching
+  function switchPredictionTab(tab) {
+    const forecastTab = document.getElementById('prediction-forecast-tab');
+    const historicalTab = document.getElementById('prediction-historical-tab');
+    const forecastBtn = document.getElementById('tab-forecast-btn');
+    const historicalBtn = document.getElementById('tab-historical-btn');
+    
+    if (tab === 'forecast') {
+      forecastTab.style.display = 'block';
+      historicalTab.style.display = 'none';
+      forecastBtn.style.color = 'var(--ink)';
+      forecastBtn.style.borderBottomColor = 'var(--amber)';
+      forecastBtn.style.fontWeight = '700';
+      historicalBtn.style.color = 'var(--ink-45)';
+      historicalBtn.style.borderBottomColor = 'transparent';
+      historicalBtn.style.fontWeight = '500';
+    } else {
+      forecastTab.style.display = 'none';
+      historicalTab.style.display = 'block';
+      forecastBtn.style.color = 'var(--ink-45)';
+      forecastBtn.style.borderBottomColor = 'transparent';
+      forecastBtn.style.fontWeight = '500';
+      historicalBtn.style.color = 'var(--ink)';
+      historicalBtn.style.borderBottomColor = 'var(--amber)';
+      historicalBtn.style.fontWeight = '700';
+      loadHistoricalData();
+    }
+  }
+
+  // Load historical records from API
+  function loadHistoricalData() {
+    const tbody = document.getElementById('historical-records-body');
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 12px; color: var(--ink-45);">Loading records...</td></tr>';
+    
+    fetch('/admin/api/historical-data')
+      .then(res => res.json())
+      .then(records => {
+        tbody.innerHTML = '';
+        if (records.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 12px; color: var(--ink-45);">No historical records found.</td></tr>';
+          return;
+        }
+        
+        records.forEach(r => {
+          const tr = document.createElement('tr');
+          tr.style.borderBottom = '1px solid rgba(28,26,20,0.05)';
+          tr.innerHTML = `
+            <td style="padding: 6px 8px; font-family: var(--mono);">${r.date}</td>
+            <td style="padding: 6px 8px; text-align: center;">${r.customers_count}</td>
+            <td style="padding: 6px 8px; text-align: center;">${r.orders_count}</td>
+            <td style="padding: 6px 8px; text-align: center;">${r.reservations_count}</td>
+            <td style="padding: 6px 8px; text-align: center;">
+              <button onclick="editHistoricalRecord('${r.date}', ${r.customers_count}, ${r.orders_count}, ${r.reservations_count})" style="background: transparent; border: 1px solid var(--sand); padding: 2px 6px; font-size: 9px; cursor: pointer; border-radius: 4px; font-family: var(--mono);">Edit</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 12px; color: var(--clay);">Error loading records.</td></tr>';
+      });
+  }
+
+  // Fill forms to edit historical entry
+  function editHistoricalRecord(date, customers, orders, reservations) {
+    document.getElementById('hist-date-input').value = date;
+    document.getElementById('hist-customers-input').value = customers;
+    document.getElementById('hist-orders-input').value = orders;
+    document.getElementById('hist-res-input').value = reservations;
+    
+    const statusMsg = document.getElementById('hist-status-msg');
+    statusMsg.style.display = 'block';
+    statusMsg.style.color = 'var(--ink-60)';
+    statusMsg.innerText = `Editing record for ${date}`;
+  }
+
+  // Save manual historical data override
+  function saveHistoricalEntry() {
+    const date = document.getElementById('hist-date-input').value;
+    const customers = document.getElementById('hist-customers-input').value;
+    const orders = document.getElementById('hist-orders-input').value;
+    const reservations = document.getElementById('hist-res-input').value;
+    const statusMsg = document.getElementById('hist-status-msg');
+    
+    if (!date) {
+      alert('Please select a date.');
+      return;
+    }
+    
+    statusMsg.style.display = 'block';
+    statusMsg.style.color = 'var(--ink-60)';
+    statusMsg.innerText = 'Saving daily record...';
+    
+    fetch('/admin/api/historical-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date: date,
+        customers_count: parseInt(customers) || 0,
+        orders_count: parseInt(orders) || 0,
+        reservations_count: parseInt(reservations) || 0
+      })
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        statusMsg.innerText = 'Daily record saved successfully!';
+        statusMsg.style.color = 'var(--olive)';
+        loadHistoricalData();
+        
+        // Clear fields
+        document.getElementById('hist-date-input').value = '';
+        document.getElementById('hist-customers-input').value = '';
+        document.getElementById('hist-orders-input').value = '';
+        document.getElementById('hist-res-input').value = '';
+        
+        setTimeout(() => { statusMsg.style.display = 'none'; }, 3000);
+      } else {
+        statusMsg.innerText = 'Failed: ' + res.message;
+        statusMsg.style.color = 'var(--clay)';
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      statusMsg.innerText = 'Error saving record.';
+      statusMsg.style.color = 'var(--clay)';
+    });
+  }
+
+  // Train prediction models
+  function retrainModel() {
+    const statusMsg = document.getElementById('hist-status-msg');
+    statusMsg.style.display = 'block';
+    statusMsg.style.color = 'var(--ink-60)';
+    statusMsg.innerText = 'Retraining XGBoost forecasts...';
+    
+    fetch('/admin/api/train-predictions', {
+      method: 'POST'
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        statusMsg.innerText = 'XGBoost models retrained successfully! Reloading...';
+        statusMsg.style.color = 'var(--olive)';
+        setTimeout(() => {
+          location.reload();
+        }, 1500);
+      } else {
+        statusMsg.innerText = 'Failed: ' + res.message;
+        statusMsg.style.color = 'var(--clay)';
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      statusMsg.innerText = 'Error retraining model.';
+      statusMsg.style.color = 'var(--clay)';
+    });
+  }
+
+  // Expand/Collapse billing toggle script
+  function toggleBillingDetails() {
+    const detailsArea = document.getElementById('expanded-billing-area');
+    const toggleBtn = document.getElementById('toggle-billing-btn');
+    if (detailsArea.style.display === 'none') {
+      detailsArea.style.display = 'block';
+      toggleBtn.innerText = 'Collapse Billing Summary';
+    } else {
+      detailsArea.style.display = 'none';
+      toggleBtn.innerText = 'Expand Billing Summary';
+    }
+  }
+
+  // Selected customer variable
+  let selectedCustomer = null;
+  let draftItems = [];
+
+  // Search customer suggestion logic (Requirement 2)
+  function handleCustomerSearch() {
+    const query = document.getElementById('cust-search-input').value;
+    const resultsBox = document.getElementById('search-results-box');
+    if (query.length < 2) {
+      resultsBox.style.display = 'none';
+      return;
+    }
+
+    fetch(`/admin/api/search-users?q=${query}`)
+      .then(res => res.json())
+      .then(users => {
+        resultsBox.innerHTML = '';
+        if (users.length === 0) {
+          resultsBox.innerHTML = '<div style="padding: 8px 12px; font-size: 11px; color: var(--ink-45);">No customers found.</div>';
+          resultsBox.style.display = 'block';
+          return;
+        }
+
+        users.forEach(u => {
+          const div = document.createElement('div');
+          div.style.padding = '8px 12px';
+          div.style.cursor = 'pointer';
+          div.style.fontSize = '11.5px';
+          div.style.borderBottom = '1px solid var(--fog)';
+          div.className = 'suggestion-item';
+          div.innerHTML = `<strong>${u.name}</strong> <span style="color: var(--ink-45);">(${u.email})</span>`;
+          div.addEventListener('click', () => {
+            selectCustomer(u);
+            resultsBox.style.display = 'none';
+          });
+          resultsBox.appendChild(div);
+        });
+        resultsBox.style.display = 'block';
+      });
+  }
+
+  function selectCustomer(user) {
+    selectedCustomer = user;
+    document.getElementById('cust-search-input').value = '';
+    document.getElementById('selected-cust-name').innerText = user.name;
+    document.getElementById('selected-cust-email').innerText = `(${user.email})`;
+    document.getElementById('selected-customer-box').style.display = 'block';
+    
+    // Check history (Requirement 2)
+    fetchCustomerHistory(user.id);
+    updateGenerateBillButton();
+  }
+
+  function clearSelectedCustomer() {
+    selectedCustomer = null;
+    document.getElementById('selected-customer-box').style.display = 'none';
+    document.getElementById('customer-history-logs').innerHTML = '';
+    updateGenerateBillButton();
+  }
+
+  function fetchCustomerHistory(userId) {
+    const logsBox = document.getElementById('customer-history-logs');
+    logsBox.innerHTML = '<div style="color: var(--ink-45);">Loading purchase logs...</div>';
+    
+    fetch(`/admin/api/customer-history/${userId}`)
+      .then(res => res.json())
+      .then(orders => {
+        logsBox.innerHTML = '';
+        if (orders.length === 0) {
+          logsBox.innerHTML = '<div style="color: var(--ink-45);">No historical records.</div>';
+          return;
+        }
+
+        orders.forEach(o => {
+          const div = document.createElement('div');
+          div.style.display = 'flex';
+          div.style.justifyContent = 'space-between';
+          div.style.padding = '4px 0';
+          div.style.borderBottom = '1px dashed var(--sand)';
+          const statusText = o.status === 'Cancelled' ? ' <span style="color: var(--clay); font-weight: 600;">(Cancelled)</span>' : '';
+          div.innerHTML = `
+            <span>#${o.order_id} (${o.date})${statusText}</span>
+            <strong>₹${Math.round(o.amount)}</strong>
+          `;
+          logsBox.appendChild(div);
+        });
+      });
+  }
+
+  // Bill Generator Draft handling
+  function addBillingItem() {
+    const select = document.getElementById('billing-item-select');
+    const qtyInput = document.getElementById('billing-qty-input');
+    const itemId = parseInt(select.value);
+    const qty = parseInt(qtyInput.value);
+    const itemName = select.options[select.selectedIndex].text.split(' (')[0];
+    const price = parseFloat(select.options[select.selectedIndex].getAttribute('data-price'));
+
+    if (qty < 1) return;
+
+    const existing = draftItems.find(x => x.menu_item_id === itemId);
+    if (existing) {
+      existing.quantity += qty;
+    } else {
+      draftItems.push({
+        menu_item_id: itemId,
+        name: itemName,
+        price: price,
+        quantity: qty
+      });
+    }
+
+    qtyInput.value = 1;
+    renderDraftItems();
+  }
+
+  // Remove billing item from draft list
+  function removeDraftItem(itemId) {
+    draftItems = draftItems.filter(x => x.menu_item_id !== itemId);
+    renderDraftItems();
+  }
+
+  // Recalculate billing values in invoice generator
+  function calculateDraftTotals() {
+    let subtotal = 0;
+    draftItems.forEach(item => {
+      subtotal += item.price * item.quantity;
+    });
+    
+    const discountInput = document.getElementById('billing-discount-input');
+    const discountPct = discountInput ? parseInt(discountInput.value) || 0 : 0;
+    const discountAmount = subtotal * (discountPct / 100.0);
+    const netSubtotal = subtotal - discountAmount;
+    const gstAmount = netSubtotal * 0.05;
+    const grandTotal = netSubtotal + gstAmount;
+    
+    document.getElementById('draft-bill-subtotal').innerText = '₹' + Math.round(subtotal);
+    document.getElementById('draft-bill-discount').innerText = '₹' + Math.round(discountAmount);
+    document.getElementById('draft-bill-gst').innerText = '₹' + Math.round(gstAmount);
+    document.getElementById('draft-bill-total').innerText = '₹' + Math.round(grandTotal);
+  }
+
+  // Render draft items list
+  function renderDraftItems() {
+    const tbody = document.getElementById('draft-items-body');
+    tbody.innerHTML = '';
+
+    draftItems.forEach(item => {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid rgba(28,26,20,0.05)';
+      tr.innerHTML = `
+        <td style="padding: 6px 0;">${item.name}</td>
+        <td style="padding: 6px 0; text-align: center;">${item.quantity}</td>
+        <td style="padding: 6px 0; text-align: right; font-weight: 600;">₹${Math.round(item.price * item.quantity)}</td>
+        <td style="padding: 6px 0; text-align: right;">
+          <button onclick="removeDraftItem(${item.menu_item_id})" style="background: transparent; border: none; color: var(--clay); cursor: pointer; font-size: 10px;">&times;</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    calculateDraftTotals();
+    updateGenerateBillButton();
+  }
+
+  function updateGenerateBillButton() {
+    const btn = document.getElementById('generate-bill-btn');
+    if (selectedCustomer && draftItems.length > 0) {
+      btn.disabled = false;
+    } else {
+      btn.disabled = true;
+    }
+  }
+
+  // Place Billing Order (Requirement 2)
+  function submitBillingOrder() {
+    if (!selectedCustomer || draftItems.length === 0) return;
+    
+    const btn = document.getElementById('generate-bill-btn');
+    const discountInput = document.getElementById('billing-discount-input');
+    const discountPct = discountInput ? parseInt(discountInput.value) || 0 : 0;
+    
+    btn.disabled = true;
+    btn.innerText = 'Creating Bill...';
+
+    fetch('/admin/api/generate-bill', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: selectedCustomer.id,
+        items: draftItems,
+        discount_pct: discountPct
+      })
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        alert('Bill Generated Successfully!');
+        draftItems = [];
+        renderDraftItems();
+        clearSelectedCustomer();
+        if (discountInput) discountInput.value = 0;
+        pollLiveStats(); // reload stats in real-time
+        
+        // Show the generated invoice modal instantly
+        viewInvoice(res.order_id);
+      } else {
+        alert('Failed: ' + res.message);
+      }
+      btn.innerText = 'Generate Bill & Place Order';
+      btn.disabled = false;
+    })
+    .catch(err => {
+      console.error(err);
+      alert('Error submitting billing transaction.');
+      btn.innerText = 'Generate Bill & Place Order';
+      btn.disabled = false;
+    });
+  }
+
+  // Invoice modal script
+  let activeInvoiceOrderId = null;
+
+  function viewInvoice(orderId) {
+    activeInvoiceOrderId = orderId;
+    
+    // Set loading state
+    document.getElementById('bill-order-id').innerText = orderId;
+    document.getElementById('bill-customer-name').innerText = "Loading...";
+    document.getElementById('bill-customer-contact').innerText = "";
+    document.getElementById('bill-payment-status').innerText = "";
+    document.getElementById('bill-subtotal').innerText = "₹...";
+    document.getElementById('bill-discount').innerText = "₹...";
+    document.getElementById('bill-taxes').innerText = "₹...";
+    document.getElementById('bill-total').innerText = "₹...";
+    document.getElementById('bill-items-body').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 12px; color: var(--ink-45);">Loading invoice details...</td></tr>';
+    document.getElementById('bill-reservation-panel').style.display = 'none';
+    
+    // Clear notifications
+    document.getElementById('receipt-notify-msg').style.display = 'none';
+    
+    // Show modal
+    document.getElementById('invoice-modal').style.display = 'flex';
+    
+    // Fetch details from backend API
+    fetch(`/admin/api/invoice-details/${orderId}`)
+      .then(res => res.json())
+      .then(res => {
+        if (!res.success) {
+          alert('Failed to load invoice details: ' + res.message);
+          closeInvoice();
+          return;
+        }
+        
+        document.getElementById('bill-customer-name').innerText = res.customer.name;
+        document.getElementById('bill-customer-contact').innerText = `${res.customer.email || 'No Email'} | ${res.customer.phone || 'No Phone'}`;
+        
+        const statusEl = document.getElementById('bill-payment-status');
+        statusEl.innerText = res.status;
+        if (res.status === 'Cancelled') {
+          statusEl.style.color = 'var(--clay)';
+        } else if (res.status === 'Completed') {
+          statusEl.style.color = 'var(--olive)';
+        } else {
+          statusEl.style.color = '#b08d00';
+        }
+        
+        document.getElementById('bill-datetime').innerText = res.date;
+        
+        document.getElementById('bill-subtotal').innerText = '₹' + Math.round(res.subtotal);
+        document.getElementById('bill-discount-pct').innerText = res.discount_pct;
+        document.getElementById('bill-discount').innerText = '₹' + Math.round(res.discount_amount);
+        document.getElementById('bill-taxes').innerText = '₹' + Math.round(res.gst_amount);
+        document.getElementById('bill-total').innerText = '₹' + Math.round(res.amount);
+        
+        const body = document.getElementById('bill-items-body');
+        body.innerHTML = '';
+        res.items.forEach(item => {
+          const row = document.createElement('tr');
+          row.style.borderBottom = '1px solid rgba(28, 26, 20, 0.05)';
+          row.innerHTML = `
+            <td style="padding: 6px 0;">${item.name}</td>
+            <td style="padding: 6px 0; text-align: center; font-family: var(--mono);">${item.quantity}</td>
+            <td style="padding: 6px 0; text-align: right; font-family: var(--mono);">₹${Math.round(item.price)}</td>
+            <td style="padding: 6px 0; text-align: right; font-family: var(--mono); font-weight: 700;">₹${Math.round(item.price * item.quantity)}</td>
+          `;
+          body.appendChild(row);
+        });
+        
+        const resPanel = document.getElementById('bill-reservation-panel');
+        if (res.has_reservation && res.reservation) {
+          resPanel.style.display = 'block';
+          document.getElementById('bill-reservation-status').innerText = 'Yes (Confirmed)';
+          document.getElementById('bill-reservation-status').style.color = 'var(--olive)';
+          document.getElementById('bill-res-date').innerText = res.reservation.date;
+          document.getElementById('bill-res-time').innerText = res.reservation.time;
+          document.getElementById('bill-res-seat').innerText = res.reservation.seat_type;
+          document.getElementById('bill-res-guests').innerText = res.reservation.guests;
+        } else {
+          resPanel.style.display = 'block';
+          document.getElementById('bill-reservation-status').innerText = 'No Reservation';
+          document.getElementById('bill-reservation-status').style.color = 'var(--ink-45)';
+          document.getElementById('bill-res-date').innerText = '-';
+          document.getElementById('bill-res-time').innerText = '-';
+          document.getElementById('bill-res-seat').innerText = '-';
+          document.getElementById('bill-res-guests').innerText = '-';
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('Error loading invoice details.');
+        closeInvoice();
+      });
+  }
+
+  function closeInvoice() {
+    document.getElementById('invoice-modal').style.display = 'none';
+  }
+
+  function printInvoice() {
+    window.print();
+  }
+
+  // Receipt send actions (Requirement 2)
+  function sendReceipt(method) {
+    if (!activeInvoiceOrderId) return;
+    const msg = document.getElementById('receipt-notify-msg');
+    msg.style.display = 'block';
+    msg.style.color = 'var(--olive)';
+    msg.innerText = `Dispatching receipt via ${method.toUpperCase()}...`;
+
+    fetch('/admin/api/send-receipt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_id: activeInvoiceOrderId,
+        method: method
+      })
+    })
+    .then(res => res.json())
+    .then(res => {
+      if (res.success) {
+        msg.innerText = res.message;
+      } else {
+        msg.innerText = 'Failed to deliver receipt.';
+        msg.style.color = 'var(--clay)';
+      }
+    });
+  }
+
+  // Real-time Updates (Poll statistics)
+  function pollLiveStats() {
+    fetch('/admin/api/stats')
+      .then(res => res.json())
+      .then(data => {
+        // Update Order numbers
+        document.getElementById('orders-today-val').innerText = data.orders_today;
+        document.getElementById('orders-week-val').innerText = data.orders_week;
+        document.getElementById('orders-month-val').innerText = data.orders_month;
+
+        // Update Profit and sales metrics
+        document.getElementById('profit-sales-val').innerText = `${data.orders_today} / ${data.orders_month}`;
+        document.getElementById('profit-rev-val').innerText = `₹${Math.round(data.revenue_today)} / ₹${Math.round(data.revenue_month)}`;
+        document.getElementById('profit-net-val').innerText = `₹${Math.round(data.profit_today)} / ₹${Math.round(data.profit_month)}`;
+
+        // Update billing summary defaults if elements exist
+        const metricBillsToday = document.getElementById('metric-bills-today');
+        if (metricBillsToday) metricBillsToday.innerText = data.orders_today;
+        const metricRevenue = document.getElementById('metric-revenue');
+        if (metricRevenue) metricRevenue.innerText = '₹' + Math.round(data.revenue_today);
+        const metricPending = document.getElementById('metric-pending');
+        if (metricPending) metricPending.innerText = data.pending_payments;
+        const metricPaid = document.getElementById('metric-paid');
+        if (metricPaid) metricPaid.innerText = data.paid_bills;
+
+        // profit yield status indicator if element exists
+        const netProfit = data.profit_today;
+        const profitTrend = document.getElementById('profit-trend-indicator');
+        if (profitTrend) {
+          if (netProfit > 0) {
+            profitTrend.innerHTML = '▲ Operational Net Yield';
+            profitTrend.style.color = 'var(--olive)';
+          } else if (netProfit < 0) {
+            profitTrend.innerHTML = '▼ Operational Net Loss';
+            profitTrend.style.color = 'var(--clay)';
+          } else {
+            profitTrend.innerHTML = '◆ Break-even Baseline';
+            profitTrend.style.color = 'var(--yellow)';
+          }
+        }
+      })
+      .catch(err => console.error("Error polling dashboard metrics:", err));
+  }
+
+  // Initial load actions
+  document.addEventListener('DOMContentLoaded', () => {
+    // Hide dropdown search results on body click
+    document.addEventListener('click', (e) => {
+      const box = document.getElementById('search-results-box');
+      const input = document.getElementById('cust-search-input');
+      if (e.target !== box && e.target !== input) {
+        box.style.display = 'none';
+      }
+    });
+
+    // Bind initial prediction charts
+    const initial7Days = {{ next_7_days | tojson | safe }};
+    const initial30Days = {{ next_30_days | tojson | safe }};
+    initCharts(initial7Days, initial30Days);
+
+    // Initial poll & 5-second interval timer binding
+    pollLiveStats();
+    setInterval(pollLiveStats, 5000);
+  });
+</script>
+{% endblock %}

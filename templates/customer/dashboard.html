@@ -1,0 +1,832 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="dashboard-page">
+  <div class="container">
+    <!-- Header -->
+    <div class="dash-header" style="display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 1px solid var(--sand); padding-bottom: 24px;">
+      <div>
+        <div class="dash-greeting">Customer Portal</div>
+        <h1 class="dash-title">Welcome back, <em>{{ current_user.name }}</em></h1>
+        <p class="dash-sub">Manage your reservations and custom botanical combinations.</p>
+      </div>
+      <div>
+        <a href="{{ url_for('customer.book_slot') }}" class="btn-primary">
+          New Booking
+        </a>
+      </div>
+    </div>
+
+    <!-- Statistics Cards Section -->
+    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-top: 32px;" class="dashboard-stats-grid">
+      <!-- Card 1: Orders Placed -->
+      <div class="stat-card">
+        <div class="stat-card-accent"></div>
+        <div class="stat-card-label">Orders Placed</div>
+        <div class="stat-card-value">{{ orders_placed }}</div>
+        <div class="stat-card-sub">Total orders made</div>
+      </div>
+      
+      <!-- Card 2: Reservations Made -->
+      <div class="stat-card">
+        <div class="stat-card-accent stat-card-accent--amber"></div>
+        <div class="stat-card-label">Reservations</div>
+        <div class="stat-card-value">{{ reservations_made }}</div>
+        <div class="stat-card-sub">Booked seats & pods</div>
+      </div>
+
+      <!-- Card 3: Favorite Item -->
+      <div class="stat-card">
+        <div class="stat-card-accent stat-card-accent--yellow"></div>
+        <div class="stat-card-label">Favorite Choice</div>
+        <div class="stat-card-value" style="font-size: 18px; font-weight: 700; line-height: 1.2; height: 42px; display: flex; align-items: center;">{{ favorite_item }}</div>
+        <div class="stat-card-sub">Most ordered item</div>
+      </div>
+
+      <!-- Card 4: Total Spending -->
+      <div class="stat-card">
+        <div class="stat-card-accent"></div>
+        <div class="stat-card-label">Total Spent</div>
+        <div class="stat-card-value">₹{{ total_spending | int }}</div>
+        <div class="stat-card-sub">Accumulated billing</div>
+      </div>
+
+      <!-- Card 5: Reward Points -->
+      <div class="stat-card">
+        <div class="stat-card-accent stat-card-accent--amber"></div>
+        <div class="stat-card-label">Loyalty Points</div>
+        <div class="stat-card-value">{{ loyalty_points }}</div>
+        <div class="stat-card-sub">Earned points balance</div>
+      </div>
+    </div>
+
+    <!-- My Cart & AI Recommendations Card -->
+    <div id="dashboard-cart-card" class="card" style="background: var(--cream); border-top: 3px solid var(--yellow); margin-top: 32px; display: none; transition: all 0.4s ease;">
+      <div class="card-body" style="padding: 24px;">
+        <h2 class="dash-section-title" style="margin: 0 0 20px 0; font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink);">My Cart & AI Recommendations</h2>
+        
+        <!-- Cart Items Table/List -->
+        <div style="overflow-x: auto; width: 100%;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-family: var(--sans); font-size: 13.5px; line-height: 1.5;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--sand); color: var(--ink-60);">
+                <th style="padding: 12px 16px 12px 8px; font-weight: 600;">Item Name</th>
+                <th style="padding: 12px 16px; font-weight: 600;">Date Added</th>
+                <th style="padding: 12px 16px; font-weight: 600; text-align: center; width: 140px;">Quantity</th>
+                <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Price</th>
+                <th style="padding: 12px 16px; font-weight: 600; text-align: right;">Total</th>
+                <th style="padding: 12px 8px 12px 16px; width: 60px;"></th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-cart-rows">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Checkout & Calculation Area -->
+        <div style="display: flex; justify-content: flex-end; margin-top: 24px; border-top: 1px dashed var(--sand); padding-top: 20px;">
+          <div style="width: 320px; font-family: var(--sans); font-size: 13px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; color: var(--ink-60);">
+              <span>Subtotal</span>
+              <strong id="db-cart-subtotal" style="color: var(--ink);">₹0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: var(--ink-60);">
+              <span>GST (5%)</span>
+              <strong id="db-cart-gst" style="color: var(--ink);">₹0</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 16px; font-weight: 700; border-top: 1px solid var(--sand); padding-top: 8px; margin-top: 4px;">
+              <span style="font-family: var(--serif);">Grand Total</span>
+              <strong id="db-cart-total" style="color: var(--olive); font-family: var(--serif);">₹0</strong>
+            </div>
+            <button id="db-place-order-btn" class="btn-primary" style="margin-top: 16px; width: 100%; border: none; font-size: 12px; font-weight: 600; justify-content: center; cursor: pointer;">
+              Place Order Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="dashboard-main-grid">
+      
+      <!-- Reservations Card -->
+      <div class="card" style="background: var(--cream); border-top: 3px solid var(--olive);">
+        <div class="card-body">
+          <h2 class="dash-section-title">Your Reservations</h2>
+
+          {% if bookings %}
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              {% for booking in bookings %}
+                <div class="booking-row" id="booking-row-{{ booking.booking_id }}" style="transition: all 0.5s ease;">
+                  <div class="booking-date-box">
+                    <span class="booking-day">{{ booking.date.strftime('%d') }}</span>
+                    <span class="booking-month">{{ booking.date.strftime('%b') }}</span>
+                  </div>
+                  <div class="booking-details">
+                    <span class="booking-name">{{ booking.seat_type }}</span>
+                    <span class="booking-time">{{ booking.time.strftime('%I:%M %p') }} • {{ booking.guests }} Guest(s)</span>
+                  </div>
+                  <div>
+                    {% set status_class = 'pending' %}
+                    {% if booking.status == 'Confirmed' %}
+                      {% set status_class = 'confirmed' %}
+                    {% elif booking.status == 'Checked In' %}
+                      {% set status_class = 'checked-in' %}
+                    {% elif booking.status == 'Cancelled' %}
+                      {% set status_class = 'cancelled' %}
+                    {% endif %}
+                    <span class="status status--{{ status_class }}">{{ booking.status }}</span>
+                  </div>
+                  {% if booking.status != 'Cancelled' %}
+                  <div style="text-align: right;">
+                    <button onclick="confirmCancelReservation({{ booking.booking_id }})" class="btn-primary" style="padding: 6px 12px; font-size: 11px; background: var(--clay); border: none; border-radius: var(--r); cursor: pointer; font-family: var(--sans); color: var(--cream); transition: background 0.2s;">Cancel Reservation</button>
+                  </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div style="text-align: center; color: var(--ink-45); padding: 48px 0;">
+              <p>No reservations found. Reserve a seat to get started.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Loyalty & Rewards Card -->
+      {% set ns = namespace(tier='Bronze', next_tier='Silver', points_needed=100, prev_tier_points=0, next_tier_points=100, progress=0) %}
+
+      {% if loyalty_points >= 600 %}
+        {% set ns.tier = 'Platinum' %}
+        {% set ns.next_tier = 'Max Tier' %}
+        {% set ns.points_needed = 0 %}
+        {% set ns.progress = 100 %}
+      {% elif loyalty_points >= 300 %}
+        {% set ns.tier = 'Gold' %}
+        {% set ns.next_tier = 'Platinum' %}
+        {% set ns.prev_tier_points = 300 %}
+        {% set ns.next_tier_points = 600 %}
+        {% set ns.progress = ((loyalty_points - 300) * 100 / 300) | int %}
+        {% set ns.points_needed = 600 - loyalty_points %}
+      {% elif loyalty_points >= 100 %}
+        {% set ns.tier = 'Silver' %}
+        {% set ns.next_tier = 'Gold' %}
+        {% set ns.prev_tier_points = 100 %}
+        {% set ns.next_tier_points = 300 %}
+        {% set ns.progress = ((loyalty_points - 100) * 100 / 200) | int %}
+        {% set ns.points_needed = 300 - loyalty_points %}
+      {% else %}
+        {% set ns.tier = 'Bronze' %}
+        {% set ns.next_tier = 'Silver' %}
+        {% set ns.prev_tier_points = 0 %}
+        {% set ns.next_tier_points = 100 %}
+        {% set ns.progress = (loyalty_points * 100 / 100) | int %}
+        {% set ns.points_needed = 100 - loyalty_points %}
+      {% endif %}
+      
+      <div class="card" style="background: var(--cream); border-top: 3px solid var(--yellow);">
+        <div class="card-body" style="padding: 28px 32px;">
+          <h2 class="dash-section-title" style="margin: 0 0 16px 0; font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink);">Loyalty & Rewards Program</h2>
+          <div style="display: flex; gap: 20px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+            <div>
+              <div style="font-size: 13px; color: var(--ink-60); margin-bottom: 4px;">Current Tier</div>
+              <strong style="font-family: var(--serif); font-size: 20px; color: {% if ns.tier == 'Platinum' %}#7a9a6a{% elif ns.tier == 'Gold' %}#c9a227{% elif ns.tier == 'Silver' %}#8c887d{% else %}#9e3d28{% endif %};">{{ ns.tier }} Member</strong>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 13px; color: var(--ink-60); margin-bottom: 4px;">Total Points</div>
+              <strong style="font-family: var(--mono); font-size: 20px; color: var(--olive);">{{ loyalty_points }} PTS</strong>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div style="margin-top: 24px;">
+            <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--ink-60); margin-bottom: 8px; font-family: var(--mono);">
+              <span>{{ ns.tier }} ({{ ns.prev_tier_points }} pts)</span>
+              {% if ns.tier != 'Platinum' %}
+                <span>{{ ns.points_needed }} pts to {{ ns.next_tier }}</span>
+              {% else %}
+                <span>Highest Tier Reached ✨</span>
+              {% endif %}
+            </div>
+            <div style="width: 100%; height: 10px; background: var(--fog); border-radius: 5px; overflow: hidden; border: 1px solid var(--sand);">
+              <div style="width: {{ ns.progress }}%; height: 100%; background: linear-gradient(90deg, var(--olive) 0%, var(--sage) 100%); border-radius: 5px; transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-45); margin-top: 6px; font-family: var(--mono);">
+              <span>Progress: {{ ns.progress }}%</span>
+              <span>{{ ns.next_tier_points }} pts</span>
+            </div>
+          </div>
+
+          <!-- Rewards Explanation -->
+          <div style="margin-top: 24px; background: var(--fog); border: 1px solid var(--sand); padding: 16px; border-radius: var(--r); font-size: 12px; color: var(--ink-60); line-height: 1.6; font-family: var(--sans);">
+            <strong style="color: var(--ink); display: block; margin-bottom: 6px; font-size: 13px; font-family: var(--serif);">Tier Benefits & Perks:</strong>
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;">
+              <li>🥉 <strong>Bronze:</strong> Earn 1 point per ₹100 spent. Free entry to public cupping events.</li>
+              <li>🥈 <strong>Silver:</strong> 5% discount on all bakery items. Priority seat booking slots.</li>
+              <li>🥇 <strong>Gold:</strong> 10% discount on entire bill. Free beverage on birthday week.</li>
+              <li>💎 <strong>Platinum:</strong> Free unlimited daily filter coffee. Access to cellar reserve bottlings.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive My Orders Card -->
+      <div class="card" style="background: var(--cream); border-top: 3px solid var(--amber);">
+        <div class="card-body" style="padding: 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--sand); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <h2 class="dash-section-title" style="margin: 0; font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink);">My Orders</h2>
+            
+            <!-- Sorting Controls -->
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <select id="order-sort" onchange="loadOrders()" class="form-select" style="padding: 4px 8px; font-size: 11px; background: var(--fog); border: 1px solid var(--sand); border-radius: var(--r); font-family: var(--sans); cursor: pointer; width: auto;">
+                <option value="latest" selected>Latest Orders</option>
+                <option value="oldest">Oldest Orders</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Filter Tabs -->
+          <div style="display: flex; gap: 6px; margin-bottom: 16px; border-bottom: 1px solid var(--sand); padding-bottom: 8px;">
+            <button onclick="changeOrderFilter('all', this)" class="btn-filter" style="background: var(--olive); color: var(--cream); border: none; padding: 4px 10px; font-size: 11.5px; border-radius: 12px; cursor: pointer; font-family: var(--sans); outline: none;">All</button>
+            <button onclick="changeOrderFilter('current', this)" class="btn-filter" style="background: transparent; color: var(--ink-60); border: 1px solid var(--sand); padding: 4px 10px; font-size: 11.5px; border-radius: 12px; cursor: pointer; font-family: var(--sans); outline: none;">Current</button>
+            <button onclick="changeOrderFilter('past', this)" class="btn-filter" style="background: transparent; color: var(--ink-60); border: 1px solid var(--sand); padding: 4px 10px; font-size: 11.5px; border-radius: 12px; cursor: pointer; font-family: var(--sans); outline: none;">Past</button>
+          </div>
+
+          <!-- Live Orders List Container -->
+          <div id="orders-list-box" style="display: flex; flex-direction: column; gap: 12px; min-height: 150px;">
+            <div style="text-align: center; color: var(--ink-45); padding: 48px 0; font-family: var(--sans);">Loading orders...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Custom Confirmation Modal for Cancellations -->
+<div id="cancel-confirm-modal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); z-index: 11000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+  <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); padding: 30px; width: 100%; max-width: 400px; text-align: center; box-shadow: var(--shadow-lg); transform: translateY(-20px); transition: transform 0.3s ease;">
+    <h3 id="cancel-modal-title" style="font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); margin-bottom: 16px;">Cancel Confirmation</h3>
+    <p id="cancel-modal-message" style="font-family: var(--sans); font-size: 13.5px; line-height: 1.6; color: var(--ink-60); margin-bottom: 24px;"></p>
+    <div style="display: flex; gap: 12px; justify-content: center;">
+      <button id="cancel-modal-no-btn" class="btn-outline-dark" style="padding: 10px 20px; font-size: 12px; border-radius: var(--r); cursor: pointer; border: 1px solid var(--sand); background: transparent; font-weight: 600;">No, Keep Order</button>
+      <button id="cancel-modal-yes-btn" class="form-submit" style="padding: 10px 20px; font-size: 12px; border-radius: var(--r); cursor: pointer; background: var(--clay); color: var(--cream); border: none; font-weight: 600; margin-top: 0;">Yes, Cancel Order</button>
+    </div>
+  </div>
+</div>
+
+{% if new_bookings or new_order %}
+<div id="booking-toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px;">
+  <!-- Bookings toasts -->
+  {% if new_bookings %}
+    {% for booking in new_bookings %}
+    <div class="booking-toast" style="background: var(--cream); border-left: 5px solid var(--olive); border-top: 1px solid var(--sand); border-right: 1px solid var(--sand); border-bottom: 1px solid var(--sand); border-radius: var(--r); padding: 16px 20px; width: 320px; box-shadow: var(--shadow-lg); position: relative; font-family: var(--sans); animation: slideIn 0.5s forwards; transition: opacity 0.5s, transform 0.5s;">
+      <!-- Close button -->
+      <button onclick="dismissToast(this)" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; font-size: 16px; color: var(--ink-45); cursor: pointer; line-height: 1;">&times;</button>
+      
+      <!-- Header with Success Icon -->
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--olive); font-weight: 700; font-family: var(--serif); font-size: 14.5px; text-align: left;">
+        <span style="font-size: 11px; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: var(--olive); color: var(--cream); border-radius: 50%; font-weight: bold; font-family: var(--sans);">✓</span>
+        Reservation Confirmed
+      </div>
+      
+      <!-- Body Message -->
+      <div style="font-size: 12px; color: var(--ink); line-height: 1.5; margin-bottom: 12px; text-align: left;">
+        Hello <strong>{{ current_user.name }}</strong>,<br>
+        Your table booking has been confirmed.
+      </div>
+      
+      <!-- Booking Details -->
+      <div style="background: var(--fog); padding: 10px 12px; border-radius: var(--r); font-size: 11px; color: var(--ink-80); display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--sand); font-family: var(--sans);">
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--ink-45);">Table:</span>
+          <strong style="color: var(--ink);">{{ booking.seat_type }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--ink-45);">Date:</span>
+          <strong style="color: var(--ink);">{{ booking.date.strftime('%d %B %Y') }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: var(--ink-45);">Time:</span>
+          <strong style="color: var(--ink);">{{ booking.time.strftime('%I:%M %p') }}</strong>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Order toast -->
+  {% if new_order %}
+  <div class="booking-toast" style="background: var(--cream); border-left: 5px solid var(--amber); border-top: 1px solid var(--sand); border-right: 1px solid var(--sand); border-bottom: 1px solid var(--sand); border-radius: var(--r); padding: 16px 20px; width: 320px; box-shadow: var(--shadow-lg); position: relative; font-family: var(--sans); animation: slideIn 0.5s forwards; transition: opacity 0.5s, transform 0.5s;">
+    <!-- Close button -->
+    <button onclick="dismissToast(this)" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; font-size: 16px; color: var(--ink-45); cursor: pointer; line-height: 1;">&times;</button>
+    
+    <!-- Header with Success Icon -->
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--amber); font-weight: 700; font-family: var(--serif); font-size: 14.5px; text-align: left;">
+      <span style="font-size: 11px; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: var(--amber); color: var(--cream); border-radius: 50%; font-weight: bold; font-family: var(--sans);">✓</span>
+      Order Placed Successfully
+    </div>
+    
+    <!-- Body Message -->
+    <div style="font-size: 12px; color: var(--ink); line-height: 1.5; margin-bottom: 12px; text-align: left;">
+      Hello <strong>{{ current_user.name }}</strong>,<br>
+      your order has been placed successfully.
+    </div>
+    
+    <!-- Order Details -->
+    {% set items_list = new_order.items | load_json %}
+    {% set total_quantity = items_list | map(attribute='quantity') | sum %}
+    {% set prep_time = 10 + 2 * total_quantity %}
+    <div style="background: var(--fog); padding: 10px 12px; border-radius: var(--r); font-size: 11px; color: var(--ink-80); display: flex; flex-direction: column; gap: 4px; border: 1px solid var(--sand); font-family: var(--sans);">
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--ink-45);">Order ID:</span>
+        <strong style="color: var(--ink); font-family: var(--mono);">#{{ new_order.order_id }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--ink-45);">Total Amount:</span>
+        <strong style="color: var(--ink);">₹{{ new_order.amount | int }}</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span style="color: var(--ink-45);">Est. Prep Time:</span>
+        <strong style="color: var(--olive);">{{ prep_time }} minutes ⏱</strong>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<style>
+/* Status dot styling overrides for dashboard uniformity */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+.status--pending    { background: rgba(201, 162, 39, 0.12) !important; color: #8a6c10 !important; }
+.status--pending::before    { background: var(--yellow) !important; }
+
+.status--preparing  { background: rgba(201, 162, 39, 0.12) !important; color: #8a6c10 !important; }
+.status--preparing::before  { background: var(--yellow) !important; }
+
+.status--ready      { background: rgba(66, 133, 244, 0.12) !important; color: #2c59a3 !important; }
+.status--ready::before      { background: #4285f4 !important; }
+
+.status--checked-in { background: rgba(66, 133, 244, 0.12) !important; color: #2c59a3 !important; }
+.status--checked-in::before { background: #4285f4 !important; }
+
+.status--confirmed  { background: rgba(74, 92, 58, 0.12) !important; color: var(--olive) !important; }
+.status--confirmed::before  { background: var(--olive) !important; }
+
+.status--served     { background: rgba(74, 92, 58, 0.12) !important; color: var(--olive) !important; }
+.status--served::before     { background: var(--olive) !important; }
+
+.status--completed  { background: rgba(74, 92, 58, 0.12) !important; color: var(--olive) !important; }
+.status--completed::before  { background: var(--olive) !important; }
+
+.status--cancelled  { background: rgba(158, 61, 40, 0.12) !important; color: var(--clay) !important; }
+.status--cancelled::before  { background: var(--clay) !important; }
+
+@media (max-width: 1024px) {
+  .dashboard-stats-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+@media (max-width: 768px) {
+  .dashboard-stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+</style>
+
+<script>
+  let activeFilter = 'all';
+
+  function changeOrderFilter(filter, btn) {
+    activeFilter = filter;
+    
+    // Toggle active state styling on buttons
+    document.querySelectorAll('.btn-filter').forEach(b => {
+      b.style.background = 'transparent';
+      b.style.color = 'var(--ink-60)';
+      b.style.border = '1px solid var(--sand)';
+    });
+    
+    btn.style.background = 'var(--olive)';
+    btn.style.color = 'var(--cream)';
+    btn.style.border = 'none';
+    
+    loadOrders();
+  }
+
+  function loadOrders() {
+    const sort = document.getElementById('order-sort').value;
+    const box = document.getElementById('orders-list-box');
+    
+    fetch(`/customer/api/orders?filter=${activeFilter}&sort=${sort}`)
+      .then(res => res.json())
+      .then(orders => {
+        box.innerHTML = '';
+        if (orders.length === 0) {
+          box.innerHTML = `
+            <div style="text-align: center; color: var(--ink-45); padding: 48px 0; font-family: var(--sans);">
+              <p>No orders found.</p>
+            </div>`;
+          return;
+        }
+        
+        orders.forEach(o => {
+          let statusClass = 'pending';
+          const status = o.status;
+          
+          if (status === 'Pending' || status === 'Received') {
+            statusClass = 'pending';
+          } else if (status === 'Confirmed') {
+            statusClass = 'confirmed';
+          } else if (status === 'Preparing' || status === 'Processing') {
+            statusClass = 'preparing';
+          } else if (status === 'Ready') {
+            statusClass = 'ready';
+          } else if (status === 'Completed' || status === 'Served') {
+            statusClass = 'completed';
+          } else if (status === 'Cancelled') {
+            statusClass = 'cancelled';
+          }
+          
+          let itemsHtml = o.items.map(item => `${item.name} <span style="color: var(--ink-45);">x${item.quantity}</span>`).join(', ');
+          
+          let cancelBtnHtml = '';
+          if (status !== 'Completed' && status !== 'Cancelled') {
+            cancelBtnHtml = `
+              <div style="border-top: 1px solid rgba(28,26,20,0.05); padding-top: 8px; margin-top: 4px; display: flex; justify-content: flex-end;">
+                <button onclick="confirmCancelOrder(${o.order_id})" class="btn-primary" style="padding: 4px 8px; font-size: 10.5px; background: var(--clay); border: none; border-radius: var(--r); cursor: pointer; font-family: var(--sans); color: var(--cream); transition: background 0.2s;">Cancel Order</button>
+              </div>
+            `;
+          }
+
+          const row = document.createElement('div');
+          row.id = `order-row-${o.order_id}`;
+          row.style = 'border: 1px solid var(--sand); border-radius: var(--r); padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; background: var(--cream); font-family: var(--sans); text-align: left; transition: all 0.5s ease;';
+          row.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--sand); padding-bottom: 6px;">
+              <div>
+                <strong style="font-family: var(--mono); font-size: 11.5px; color: var(--ink);">#${o.order_id}</strong>
+                <span style="font-size: 10px; color: var(--ink-45); margin-left: 8px;">${o.display_date}</span>
+              </div>
+              <span class="status status--${statusClass}">${status}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+              <div style="color: var(--ink-60); max-width: 70%; line-height: 1.4;">
+                ${itemsHtml}
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 9px; color: var(--ink-45); display: block;">Total Paid</span>
+                <strong style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink);">₹${Math.round(o.amount)}</strong>
+              </div>
+            </div>
+            ${cancelBtnHtml}
+          `;
+          box.appendChild(row);
+        });
+      })
+      .catch(err => console.error("Error loading customer orders:", err));
+  }
+
+  let cancelTargetId = null;
+  let cancelTargetType = null;
+
+  function confirmCancelOrder(orderId) {
+    cancelTargetId = orderId;
+    cancelTargetType = 'order';
+    
+    document.getElementById('cancel-modal-title').textContent = 'Cancel Order';
+    document.getElementById('cancel-modal-message').textContent = 'Are you sure you want to cancel this order?';
+    
+    const yesBtn = document.getElementById('cancel-modal-yes-btn');
+    const noBtn = document.getElementById('cancel-modal-no-btn');
+    
+    yesBtn.textContent = 'Yes, Cancel Order';
+    noBtn.textContent = 'No, Keep Order';
+    
+    showCancelModal();
+  }
+
+  function confirmCancelReservation(bookingId) {
+    cancelTargetId = bookingId;
+    cancelTargetType = 'booking';
+    
+    document.getElementById('cancel-modal-title').textContent = 'Cancel Reservation';
+    document.getElementById('cancel-modal-message').textContent = 'Are you sure you want to cancel this reservation?';
+    
+    const yesBtn = document.getElementById('cancel-modal-yes-btn');
+    const noBtn = document.getElementById('cancel-modal-no-btn');
+    
+    yesBtn.textContent = 'Yes, Cancel Reservation';
+    noBtn.textContent = 'No, Keep Reservation';
+    
+    showCancelModal();
+  }
+
+  function showCancelModal() {
+    const modal = document.getElementById('cancel-confirm-modal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.style.opacity = '1';
+      modal.querySelector('.card').style.transform = 'translateY(0)';
+    }, 10);
+  }
+
+  function hideCancelModal() {
+    const modal = document.getElementById('cancel-confirm-modal');
+    modal.style.opacity = '0';
+    modal.querySelector('.card').style.transform = 'translateY(-20px)';
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 300);
+  }
+
+  document.getElementById('cancel-modal-yes-btn').addEventListener('click', () => {
+    if (!cancelTargetId || !cancelTargetType) return;
+    
+    const url = cancelTargetType === 'order' 
+      ? `/customer/order/cancel/${cancelTargetId}` 
+      : `/customer/booking/cancel/${cancelTargetId}`;
+      
+    fetch(url, { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        hideCancelModal();
+        if (data.success) {
+          if (cancelTargetType === 'order') {
+            showToast('Order Cancelled Successfully', 'Your order has been successfully cancelled.', true);
+            const orderEl = document.getElementById(`order-row-${cancelTargetId}`);
+            if (orderEl) {
+              orderEl.style.opacity = '0';
+              orderEl.style.transform = 'scale(0.9)';
+              setTimeout(() => {
+                orderEl.remove();
+                loadOrders();
+              }, 500);
+            } else {
+              loadOrders();
+            }
+          } else {
+            showToast('Reservation Cancelled Successfully', 'Your reservation has been successfully cancelled.', false);
+            const bookingEl = document.getElementById(`booking-row-${cancelTargetId}`);
+            if (bookingEl) {
+              bookingEl.style.opacity = '0';
+              bookingEl.style.transform = 'scale(0.9)';
+              setTimeout(() => {
+                const container = bookingEl.parentNode;
+                bookingEl.remove();
+                if (container && container.querySelectorAll('.booking-row').length === 0) {
+                  const cardBody = container.parentNode;
+                  if (cardBody) {
+                    cardBody.innerHTML = `
+                      <h2 class="dash-section-title">Your Reservations</h2>
+                      <div style="text-align: center; color: var(--ink-45); padding: 48px 0;">
+                        <p>No reservations found. Reserve a seat to get started.</p>
+                      </div>`;
+                  }
+                }
+              }, 500);
+            } else {
+              setTimeout(() => {
+                window.location.reload();
+              }, 1000);
+            }
+          }
+        } else {
+          alert(data.message || 'An error occurred.');
+        }
+      })
+      .catch(err => {
+        hideCancelModal();
+        console.error(err);
+      });
+  });
+
+  document.getElementById('cancel-modal-no-btn').addEventListener('click', hideCancelModal);
+
+  function showToast(title, message, isOrder = false) {
+    let container = document.getElementById('booking-toast-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'booking-toast-container';
+      container.style = 'position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px;';
+      document.body.appendChild(container);
+    }
+    
+    const borderColor = isOrder ? 'var(--amber)' : 'var(--olive)';
+    const toast = document.createElement('div');
+    toast.className = 'booking-toast';
+    toast.style = `background: var(--cream); border-left: 5px solid ${borderColor}; border-top: 1px solid var(--sand); border-right: 1px solid var(--sand); border-bottom: 1px solid var(--sand); border-radius: var(--r); padding: 16px 20px; width: 320px; box-shadow: var(--shadow-lg); position: relative; font-family: var(--sans); animation: slideIn 0.5s forwards; transition: opacity 0.5s, transform 0.5s;`;
+    
+    toast.innerHTML = `
+      <button onclick="dismissToast(this)" style="position: absolute; top: 12px; right: 12px; background: transparent; border: none; font-size: 16px; color: var(--ink-45); cursor: pointer; line-height: 1;">&times;</button>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: ${borderColor}; font-weight: 700; font-family: var(--serif); font-size: 14.5px; text-align: left;">
+        <span style="font-size: 11px; display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; background: ${borderColor}; color: var(--cream); border-radius: 50%; font-weight: bold; font-family: var(--sans);">✓</span>
+        ${title}
+      </div>
+      <div style="font-size: 12px; color: var(--ink); line-height: 1.5; text-align: left;">
+        ${message}
+      </div>
+    `;
+    
+    container.appendChild(toast);
+    
+    setTimeout(() => {
+      dismissToast(toast);
+    }, 5000);
+  }
+
+  // --- DASHBOARD CART INTEGRATION SCRIPTS ---
+  window.changeDbCartQty = function(id, delta) {
+    let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+    const item = cart.find(x => x.id === id);
+    if (item) {
+      item.quantity += delta;
+      if (item.quantity <= 0) {
+        cart = cart.filter(x => x.id !== id);
+      }
+      localStorage.setItem('cafe_cart', JSON.stringify(cart));
+      window.dispatchEvent(new Event('cartUpdate'));
+    }
+  };
+
+  window.removeDbCartItem = function(id) {
+    let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+    cart = cart.filter(x => x.id !== id);
+    localStorage.setItem('cafe_cart', JSON.stringify(cart));
+    window.dispatchEvent(new Event('cartUpdate'));
+  };
+
+  function renderDashboardCart() {
+    const card = document.getElementById('dashboard-cart-card');
+    const rowsContainer = document.getElementById('dashboard-cart-rows');
+    const subtotalEl = document.getElementById('db-cart-subtotal');
+    const gstEl = document.getElementById('db-cart-gst');
+    const totalEl = document.getElementById('db-cart-total');
+    
+    if (!card || !rowsContainer) return;
+    
+    const cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+    if (cart.length === 0) {
+      card.style.display = 'none';
+      return;
+    }
+    
+    card.style.display = 'block';
+    rowsContainer.innerHTML = '';
+    
+    const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    let subtotal = 0;
+    
+    cart.forEach(item => {
+      subtotal += item.price * item.quantity;
+      const row = document.createElement('tr');
+      row.style.borderBottom = '1px solid rgba(28,26,20,0.06)';
+      row.innerHTML = `
+        <td style="padding: 16px 16px 16px 8px; font-weight: 500; color: var(--ink);">${item.name}</td>
+        <td style="padding: 16px 16px; color: var(--ink-60); font-size: 12px;">${item.dateAdded || dateStr}</td>
+        <td style="padding: 16px 16px; text-align: center;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: var(--fog); border-radius: var(--r); padding: 4px;">
+            <button onclick="changeDbCartQty(${item.id}, -1)" style="width: 22px; height: 22px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink-60); transition: color 0.2s;">-</button>
+            <span style="font-family: var(--mono); font-size: 12px; min-width: 16px; font-weight: 600; color: var(--ink);">${item.quantity}</span>
+            <button onclick="changeDbCartQty(${item.id}, 1)" style="width: 22px; height: 22px; border: none; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: var(--ink-60); transition: color 0.2s;">+</button>
+          </div>
+        </td>
+        <td style="padding: 16px 16px; text-align: right; font-family: var(--mono); color: var(--ink);">₹${item.price}</td>
+        <td style="padding: 16px 16px; text-align: right; font-family: var(--mono); font-weight: 600; color: var(--ink);">₹${Math.round(item.price * item.quantity)}</td>
+        <td style="padding: 16px 8px 16px 16px; text-align: right;">
+          <button onclick="removeDbCartItem(${item.id})" style="background: transparent; border: none; color: var(--clay); font-size: 11px; font-weight: 600; cursor: pointer; font-family: var(--sans); padding: 4px 8px; border-radius: var(--r); transition: background 0.2s;">Remove</button>
+        </td>
+      `;
+      rowsContainer.appendChild(row);
+    });
+    
+    const gst = Math.round(subtotal * 0.05);
+    const grandTotal = subtotal + gst;
+    
+    subtotalEl.textContent = `₹${Math.round(subtotal)}`;
+    gstEl.textContent = `₹${gst}`;
+    totalEl.textContent = `₹${Math.round(grandTotal)}`;
+  }
+
+  // Bind order placement checkout trigger
+  function setupDbCheckoutHandler() {
+    const placeBtn = document.getElementById('db-place-order-btn');
+    if (!placeBtn) return;
+    
+    placeBtn.addEventListener('click', () => {
+      const cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+      if (cart.length === 0) return;
+      
+      const payload = {
+        items: cart.map(x => ({
+          menu_item_id: x.id,
+          quantity: x.quantity
+        }))
+      };
+      
+      placeBtn.disabled = true;
+      placeBtn.textContent = 'Processing...';
+      
+      fetch('/orders/place', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(data => {
+        placeBtn.disabled = false;
+        placeBtn.textContent = 'Place Order Now';
+        
+        if (data.success) {
+          localStorage.removeItem('cafe_cart');
+          window.dispatchEvent(new Event('cartUpdate'));
+          showToast('Order Placed Successfully', `Your order has been successfully placed. Order ID: #${data.order_id}`, true);
+          loadOrders();
+        } else {
+          alert(data.message || 'An error occurred while placing the order.');
+        }
+      })
+      .catch(err => {
+        placeBtn.disabled = false;
+        placeBtn.textContent = 'Place Order Now';
+        console.error("Order error:", err);
+        alert('Network or server error while placing your order.');
+      });
+    });
+  }
+
+  window.addEventListener('cartUpdate', renderDashboardCart);
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadOrders();
+    setInterval(loadOrders, 5000);
+    renderDashboardCart();
+    setupDbCheckoutHandler();
+
+    const toasts = document.querySelectorAll('.booking-toast');
+    toasts.forEach((toast, index) => {
+      setTimeout(() => {
+        dismissToast(toast);
+      }, 5000 + (index * 300));
+    });
+  });
+
+  function dismissToast(el) {
+    const toast = el.closest('.booking-toast');
+    if (toast) {
+      toast.style.animation = 'slideOut 0.5s forwards';
+      setTimeout(() => {
+        toast.remove();
+        const container = document.getElementById('booking-toast-container');
+        if (container && container.children.length === 0) {
+          container.remove();
+        }
+      }, 500);
+    }
+  }
+</script>
+{% endblock %}

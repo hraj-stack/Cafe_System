@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-page">
+  <!-- Left panel: brand branding -->
+  <div class="auth-brand">
+    <div class="auth-brand-mark">HR<span>D</span></div>
+    <h1 class="auth-brand-headline">Experience<br><em>Pure Vitality</em></h1>
+    <p class="auth-brand-body">
+      Join our botanical sanctuary. Keep track of your workspace reservations, customize your AI beverage recommendations, and unlock custom-formulated blends.
+    </p>
+  </div>
+
+  <!-- Right panel: form -->
+  <div class="auth-form-wrap">
+    <div class="auth-form">
+      <h2 class="auth-form-title">Create Account</h2>
+      <p class="auth-form-sub">Sign up to reserve spaces and unlock AI recommendations.</p>
+
+      <form action="{{ url_for('auth.register') }}" method="POST">
+        <div class="form-group">
+          <label for="name" class="form-label">Full Name</label>
+          <input type="text" id="name" name="name" required class="form-input" placeholder="e.g. Jean Dupont">
+        </div>
+
+        <div class="form-group">
+          <label for="email" class="form-label">Email Address</label>
+          <input type="email" id="email" name="email" required class="form-input" placeholder="e.g. jean@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" id="password" name="password" required class="form-input" placeholder="••••••••">
+        </div>
+
+        <div style="margin-top: 36px;">
+          <button type="submit" class="form-submit">Sign Up</button>
+        </div>
+      </form>
+
+      <div class="auth-switch">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

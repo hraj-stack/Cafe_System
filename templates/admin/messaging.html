@@ -1,0 +1,415 @@
+{% extends 'base.html' %}
+
+{% block title %}HRD — Messaging Center{% endblock %}
+
+{% block content %}
+<div class="admin-page" style="background: var(--cream); padding: 20px 0; min-height: 100vh; font-family: var(--sans);">
+  <div class="container" style="max-width: var(--container-max); margin: 0 auto; padding: 0 var(--container-pad);">
+    
+    <!-- Header -->
+    <div style="border-bottom: 2px solid var(--sand); padding-bottom: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h1 style="font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--ink); margin: 0;">Messaging <em>Center</em></h1>
+        <p style="font-size: 11px; color: var(--ink-45); margin: 0;">Send emails, SMS, and WhatsApp messages directly to customers.</p>
+      </div>
+      <div style="font-family: var(--mono); font-size: 10px; background: var(--fog); padding: 4px 10px; border-radius: 12px; border: 1px solid var(--sand); color: var(--ink-60);">
+        Admin Security Authenticated
+      </div>
+    </div>
+
+    <!-- Main Grid Layout -->
+    <div style="display: grid; grid-template-columns: 1.2fr 1.5fr; gap: 24px;">
+      
+      <!-- Left Column: Search & Composer Cards -->
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Customer Selection Card -->
+        <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); box-shadow: var(--shadow-sm); overflow: hidden; position: relative;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--olive);"></div>
+          <div class="card-body" style="padding: 20px;">
+            <h3 style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 12px;">1. Search Customer</h3>
+            
+            <!-- Customer Search Widget -->
+            <div style="display: flex; flex-direction: column; gap: 8px; position: relative;">
+              <input type="text" id="messaging-cust-search" onkeyup="handleCustomerSearch()" class="form-input" placeholder="Type name or email to look up customer..." style="padding: 8px 12px; font-size: 12px; background: var(--fog); width: 100%;">
+              
+              <!-- Search Results Dropdown -->
+              <div id="search-results-box" style="display: none; position: absolute; top: 44px; left: 0; right: 0; background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r); z-index: 100; box-shadow: var(--shadow-md); max-height: 150px; overflow-y: auto;">
+                <!-- Filled dynamically by JS -->
+              </div>
+            </div>
+
+            <!-- Selected Customer Profile -->
+            <div id="selected-customer-box" style="display: none; background: rgba(74,92,58,0.05); border: 1px solid var(--olive); border-radius: var(--r); padding: 12px; margin-top: 12px; font-size: 11.5px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <strong>Selected Profile:</strong>
+                <button onclick="clearSelectedCustomer()" style="background: transparent; border: none; color: var(--clay); cursor: pointer; font-size: 10px; font-family: var(--mono);">Clear</button>
+              </div>
+              <div style="display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; color: var(--ink-80);">
+                <span style="color: var(--ink-45);">Name:</span> <strong id="profile-name" style="color: var(--ink);"></strong>
+                <span style="color: var(--ink-45);">Email:</span> <span id="profile-email"></span>
+                <span style="color: var(--ink-45);">Phone:</span> <span id="profile-phone"></span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Messaging Composer Card -->
+        <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); box-shadow: var(--shadow-sm); overflow: hidden; position: relative;">
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--amber);"></div>
+          
+          <!-- Channels Tabs Header -->
+          <div style="display: flex; background: var(--fog); border-bottom: 1px solid var(--sand);">
+            <button onclick="switchChannel('Email', this)" class="channel-tab active" style="flex: 1; padding: 12px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; border: none; background: var(--cream); cursor: pointer; border-right: 1px solid var(--sand); font-weight: 700; color: var(--ink); border-bottom: 2px solid var(--amber);">✉ Email</button>
+            <button onclick="switchChannel('SMS', this)" class="channel-tab" style="flex: 1; padding: 12px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; border: none; background: transparent; cursor: pointer; border-right: 1px solid var(--sand); font-weight: 600; color: var(--ink-60);">💬 SMS</button>
+            <button onclick="switchChannel('WhatsApp', this)" class="channel-tab" style="flex: 1; padding: 12px; font-family: var(--mono); font-size: 9px; text-transform: uppercase; border: none; background: transparent; cursor: pointer; font-weight: 600; color: var(--ink-60);">📱 WhatsApp</button>
+          </div>
+
+          <div class="card-body" style="padding: 20px;">
+            
+            <!-- 1. Email Channel Form -->
+            <div id="form-channel-Email" class="composer-channel-form">
+              <h3 style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 16px;">Send Custom Email</h3>
+              
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                  <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">Recipient Email</label>
+                  <input type="email" id="email-recipient" class="form-input" placeholder="customer@example.com" style="width: 100%; padding: 8px 12px; font-size: 12px; background: var(--fog);">
+                </div>
+                <div>
+                  <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">Subject</label>
+                  <input type="text" id="email-subject" class="form-input" placeholder="Enter email subject line..." style="width: 100%; padding: 8px 12px; font-size: 12px; background: var(--fog);">
+                </div>
+                <div>
+                  <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">Email Body Content (HTML Allowed)</label>
+                  <textarea id="email-body" class="form-input" rows="6" placeholder="Dear Customer, ..." style="width: 100%; padding: 8px 12px; font-size: 12px; background: var(--fog); resize: vertical; font-family: var(--sans);"></textarea>
+                </div>
+                
+                <button onclick="dispatchMessage('Email')" id="btn-send-Email" class="form-submit" style="margin-top: 8px; background: var(--olive); color: var(--cream); padding: 10px; font-size: 11px; font-family: var(--mono); font-weight: 700;">Send Email</button>
+              </div>
+            </div>
+
+            <!-- 2. SMS Channel Form -->
+            <div id="form-channel-SMS" class="composer-channel-form" style="display: none;">
+              <h3 style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 16px;">Send Custom SMS</h3>
+              
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                  <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">Phone Number (E.164 Format)</label>
+                  <input type="text" id="sms-recipient" class="form-input" placeholder="+919876543210" style="width: 100%; padding: 8px 12px; font-size: 12px; background: var(--fog);">
+                </div>
+                <div>
+                  <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">SMS Text Message</label>
+                  <textarea id="sms-body" class="form-input" rows="4" placeholder="Type SMS content..." maxlength="160" style="width: 100%; padding: 8px 12px; font-size: 12px; background: var(--fog); resize: vertical; font-family: var(--sans);"></textarea>
+                  <div style="text-align: right; font-size: 9px; color: var(--ink-45); margin-top: 4px;" id="sms-char-counter">0 / 160 characters</div>
+                </div>
+                
+                <button onclick="dispatchMessage('SMS')" id="btn-send-SMS" class="form-submit" style="margin-top: 8px; background: var(--amber); color: var(--cream); padding: 10px; font-size: 11px; font-family: var(--mono); font-weight: 700;">Send SMS Message</button>
+              </div>
+            </div>
+
+            <!-- 3. WhatsApp Channel Form -->
+            <div id="form-channel-WhatsApp" class="composer-channel-form" style="display: none;">
+              <h3 style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 16px;">Send WhatsApp Message</h3>
+              
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                  <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">WhatsApp Number</label>
+                  <input type="text" id="whatsapp-recipient" class="form-input" placeholder="+919876543210" style="width: 100%; padding: 8px 12px; font-size: 12px; background: var(--fog);">
+                </div>
+                <div>
+                  <label style="font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; color: var(--ink-45); display: block; margin-bottom: 4px;">WhatsApp Message</label>
+                  <textarea id="whatsapp-body" class="form-input" rows="5" placeholder="Type WhatsApp chat message..." style="width: 100%; padding: 8px 12px; font-size: 12px; background: var(--fog); resize: vertical; font-family: var(--sans);"></textarea>
+                </div>
+                
+                <button onclick="dispatchMessage('WhatsApp')" id="btn-send-WhatsApp" class="form-submit" style="margin-top: 8px; background: #25D366; color: white; padding: 10px; font-size: 11px; font-family: var(--mono); font-weight: 700; border: none;">Send WhatsApp Message</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Message History Logs -->
+      <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); box-shadow: var(--shadow-sm); overflow: hidden; display: flex; flex-direction: column; max-height: calc(100vh - 120px);">
+        <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--olive);"></div>
+        
+        <div class="card-body" style="padding: 20px; display: flex; flex-direction: column; height: 100%;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--sand); padding-bottom: 12px; margin-bottom: 12px;">
+            <div>
+              <h3 style="font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--ink); margin: 0;">2. Delivery Logs History</h3>
+              <p style="font-size: 10px; color: var(--ink-45); margin: 0;">Live message transmission archives.</p>
+            </div>
+            <button onclick="reloadLogsHistory()" class="btn-outline-dark" style="padding: 4px 8px; font-size: 9px; font-family: var(--mono); border-radius: var(--r); cursor: pointer;">
+              🔄 Refresh Logs
+            </button>
+          </div>
+
+          <!-- Message Logs Container -->
+          <div id="logs-history-box" style="overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 4px;">
+            {% if history %}
+              {% for log in history %}
+                {% set badge_color = 'var(--olive)' %}
+                {% if log.message_type == 'SMS' %}
+                  {% set badge_color = 'var(--amber)' %}
+                {% elif log.message_type == 'WhatsApp' %}
+                  {% set badge_color = '#25D366' %}
+                {% endif %}
+                <div style="border: 1px solid var(--sand); border-radius: var(--r); padding: 10px 12px; background: var(--cream); font-family: var(--sans); display: flex; flex-direction: column; gap: 6px; text-align: left;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--sand); padding-bottom: 4px;">
+                    <div>
+                      <span style="font-size: 8.5px; padding: 2px 6px; border-radius: 10px; font-weight: 700; color: white; background: {{ badge_color }}; text-transform: uppercase; font-family: var(--mono);">{{ log.message_type }}</span>
+                      <strong style="font-size: 10.5px; color: var(--ink); margin-left: 6px;">{{ log.recipient }}</strong>
+                    </div>
+                    <span style="font-family: var(--mono); font-size: 8.5px; color: var(--ink-45);">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                  </div>
+                  {% if log.subject %}
+                    <div style="font-size: 10px; color: var(--ink); font-weight: 600;">
+                      Subject: {{ log.subject }}
+                    </div>
+                  {% endif %}
+                  <div style="font-size: 10.5px; color: var(--ink-60); line-height: 1.4; white-space: pre-wrap; max-height: 80px; overflow-y: auto;">{{ log.body }}</div>
+                  <div style="display: flex; justify-content: space-between; font-size: 9px; border-top: 1px solid rgba(28,26,20,0.03); padding-top: 4px;">
+                    <span style="color: var(--ink-45);">Log ID: #{{ log.id }}</span>
+                    <strong style="color: var(--olive); text-transform: uppercase;">✓ {{ log.status }}</strong>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div style="text-align: center; color: var(--ink-45); padding: 48px 0; font-family: var(--sans);">
+                No message delivery history found.
+              </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  let activeChannel = 'Email';
+
+  function switchChannel(channel, tabBtn) {
+    activeChannel = channel;
+    
+    // Toggle active state styling on tabs
+    document.querySelectorAll('.channel-tab').forEach(b => {
+      b.style.background = 'transparent';
+      b.style.fontWeight = '600';
+      b.style.color = 'var(--ink-60)';
+      b.style.borderBottom = 'none';
+    });
+    
+    tabBtn.style.background = 'var(--cream)';
+    tabBtn.style.fontWeight = '700';
+    tabBtn.style.color = 'var(--ink)';
+    tabBtn.style.borderBottom = '2px solid var(--amber)';
+
+    // Toggle forms
+    document.querySelectorAll('.composer-channel-form').forEach(f => f.style.display = 'none');
+    document.getElementById(`form-channel-${channel}`).style.display = 'block';
+  }
+
+  // Search customer suggestion logic
+  function handleCustomerSearch() {
+    const query = document.getElementById('messaging-cust-search').value;
+    const resultsBox = document.getElementById('search-results-box');
+    if (query.length < 2) {
+      resultsBox.style.display = 'none';
+      return;
+    }
+
+    fetch(`/admin/api/search-users?q=${query}`)
+      .then(res => res.json())
+      .then(users => {
+        resultsBox.innerHTML = '';
+        if (users.length === 0) {
+          resultsBox.innerHTML = '<div style="padding: 8px 12px; font-size: 11px; color: var(--ink-45);">No customers found.</div>';
+          resultsBox.style.display = 'block';
+          return;
+        }
+
+        users.forEach(u => {
+          const div = document.createElement('div');
+          div.style.padding = '8px 12px';
+          div.style.cursor = 'pointer';
+          div.style.fontSize = '11.5px';
+          div.style.borderBottom = '1px solid var(--fog)';
+          div.className = 'suggestion-item';
+          div.innerHTML = `<strong>${u.name}</strong> <span style="color: var(--ink-45);">(${u.email})</span>`;
+          div.addEventListener('click', () => {
+            selectCustomer(u);
+            resultsBox.style.display = 'none';
+          });
+          resultsBox.appendChild(div);
+        });
+        resultsBox.style.display = 'block';
+      });
+  }
+
+  function selectCustomer(user) {
+    document.getElementById('messaging-cust-search').value = '';
+    document.getElementById('profile-name').innerText = user.name;
+    document.getElementById('profile-email').innerText = user.email || 'N/A';
+    document.getElementById('profile-phone').innerText = user.phone || 'N/A';
+    document.getElementById('selected-customer-box').style.display = 'block';
+
+    // Auto-fill composer inputs
+    document.getElementById('email-recipient').value = user.email || '';
+    document.getElementById('sms-recipient').value = user.phone || '';
+    document.getElementById('whatsapp-recipient').value = user.phone || '';
+  }
+
+  function clearSelectedCustomer() {
+    document.getElementById('selected-customer-box').style.display = 'none';
+    document.getElementById('email-recipient').value = '';
+    document.getElementById('sms-recipient').value = '';
+    document.getElementById('whatsapp-recipient').value = '';
+  }
+
+  // Character Counter for SMS
+  document.getElementById('sms-body').addEventListener('input', function() {
+    const len = this.value.length;
+    document.getElementById('sms-char-counter').textContent = `${len} / 160 characters`;
+  });
+
+  // Send message dispatcher
+  function dispatchMessage(type) {
+    let recipient, body, subject = null;
+    const btn = document.getElementById(`btn-send-${type}`);
+    
+    if (type === 'Email') {
+      recipient = document.getElementById('email-recipient').value.trim();
+      subject = document.getElementById('email-subject').value.trim();
+      body = document.getElementById('email-body').value.trim();
+      if (!subject) {
+        alert('Email Subject is required.');
+        return;
+      }
+    } else if (type === 'SMS') {
+      recipient = document.getElementById('sms-recipient').value.trim();
+      body = document.getElementById('sms-body').value.trim();
+    } else if (type === 'WhatsApp') {
+      recipient = document.getElementById('whatsapp-recipient').value.trim();
+      body = document.getElementById('whatsapp-body').value.trim();
+    }
+
+    if (!recipient) {
+      alert('Recipient identifier is required.');
+      return;
+    }
+    if (!body) {
+      alert('Message body is required.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    fetch('/admin/messaging/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: type,
+        recipient: recipient,
+        subject: subject,
+        body: body
+      })
+    })
+    .then(res => res.json())
+    .then(res => {
+      btn.disabled = false;
+      btn.textContent = type === 'Email' ? 'Send Email' : (type === 'SMS' ? 'Send SMS Message' : 'Send WhatsApp Message');
+      
+      if (res.success) {
+        alert(res.message);
+        // Clear forms
+        if (type === 'Email') {
+          document.getElementById('email-subject').value = '';
+          document.getElementById('email-body').value = '';
+        } else if (type === 'SMS') {
+          document.getElementById('sms-body').value = '';
+          document.getElementById('sms-char-counter').textContent = '0 / 160 characters';
+        } else if (type === 'WhatsApp') {
+          document.getElementById('whatsapp-body').value = '';
+        }
+        
+        reloadLogsHistory();
+      } else {
+        alert('Failed: ' + res.message);
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = type === 'Email' ? 'Send Email' : (type === 'SMS' ? 'Send SMS Message' : 'Send WhatsApp Message');
+      alert('Error sending message.');
+    });
+  }
+
+  function reloadLogsHistory() {
+    const box = document.getElementById('logs-history-box');
+    
+    fetch('/admin/messaging/history')
+      .then(res => res.json())
+      .then(logs => {
+        box.innerHTML = '';
+        if (logs.length === 0) {
+          box.innerHTML = '<div style="text-align: center; color: var(--ink-45); padding: 48px 0; font-family: var(--sans);">No message delivery history found.</div>';
+          return;
+        }
+
+        logs.forEach(log => {
+          let badgeColor = 'var(--olive)';
+          if (log.type === 'SMS') {
+            badgeColor = 'var(--amber)';
+          } else if (log.type === 'WhatsApp') {
+            badgeColor = '#25D366';
+          }
+
+          let subjectHtml = log.subject ? `<div style="font-size: 10px; color: var(--ink); font-weight: 600;">Subject: ${log.subject}</div>` : '';
+          
+          const div = document.createElement('div');
+          div.style = 'border: 1px solid var(--sand); border-radius: var(--r); padding: 10px 12px; background: var(--cream); font-family: var(--sans); display: flex; flex-direction: column; gap: 6px; text-align: left;';
+          div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--sand); padding-bottom: 4px;">
+              <div>
+                <span style="font-size: 8.5px; padding: 2px 6px; border-radius: 10px; font-weight: 700; color: white; background: ${badgeColor}; text-transform: uppercase; font-family: var(--mono);">${log.type}</span>
+                <strong style="font-size: 10.5px; color: var(--ink); margin-left: 6px;">${log.recipient}</strong>
+              </div>
+              <span style="font-family: var(--mono); font-size: 8.5px; color: var(--ink-45);">${log.created_at}</span>
+            </div>
+            ${subjectHtml}
+            <div style="font-size: 10.5px; color: var(--ink-60); line-height: 1.4; white-space: pre-wrap; max-height: 80px; overflow-y: auto;">${log.body}</div>
+            <div style="display: flex; justify-content: space-between; font-size: 9px; border-top: 1px solid rgba(28,26,20,0.03); padding-top: 4px;">
+              <span style="color: var(--ink-45);">Log ID: #${log.id}</span>
+              <strong style="color: var(--olive); text-transform: uppercase;">✓ ${log.status}</strong>
+            </div>
+          `;
+          box.appendChild(div);
+        });
+      })
+      .catch(err => console.error("Error loading logs history:", err));
+  }
+
+  // Dismiss dropdown searches
+  document.addEventListener('click', (e) => {
+    const box = document.getElementById('search-results-box');
+    const input = document.getElementById('messaging-cust-search');
+    if (e.target !== box && e.target !== input) {
+      box.style.display = 'none';
+    }
+  });
+</script>
+
+<style>
+  .suggestion-item:hover {
+    background: var(--fog) !important;
+  }
+</style>
+{% endblock %}

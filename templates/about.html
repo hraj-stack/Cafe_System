@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="about-page">
+  <!-- Top Split Block -->
+  <div class="about-split">
+    <!-- Left panel (Dark, Brand Story) -->
+    <div class="about-left">
+      <div class="about-number">01 / BRAND STORY</div>
+      <h1 class="about-headline">
+        Ferment &amp;<br><em>Precision</em>
+      </h1>
+      <p class="about-body">
+        Founded in 2026, HRD emerged from a simple question: What happens when the ancient art of slow botanical fermentation meets the modern precision of intelligence?
+      </p>
+      <p class="about-body" style="margin-top: -24px; margin-bottom: 40px;">
+        We believe that every cup of tea, coffee, or elixir should be a deeply personalized experience. By integrating state-of-the-art Generative AI and Machine Learning forecasting, we ensure that every blend is served at the absolute peak of its vitality.
+      </p>
+      <a href="{{ url_for('customer.book_slot') }}" class="btn-outline">Reserve a Seat</a>
+    </div>
+
+    <!-- Right panel (Light Grid, Vision & Mission tiles) -->
+    <div class="about-right">
+      <!-- Vision Tile -->
+      <div class="about-tile">
+        <span class="tile-icon">👁️</span>
+        <h2 class="tile-h">Vision</h2>
+        <p class="tile-p">To revolutionize culinary hospitality through intelligent, health-supporting personalization and organic science.</p>
+        <span class="tile-tag">Future</span>
+      </div>
+
+      <!-- Mission Tile -->
+      <div class="about-tile about-tile-b">
+        <span class="tile-icon">🌿</span>
+        <h2 class="tile-h">Mission</h2>
+        <p class="tile-p">Brewing the perfect cup for the exact moment you need it, supporting cognitive focus and wellness.</p>
+        <span class="tile-tag">Sustain</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decorative Botanical Details / Extra Row -->
+  <section class="section" style="background: var(--cream); border-top: 1px solid var(--sand); text-align: center;">
+    <div class="container" style="max-width: 600px; margin: 0 auto;">
+      <span class="section-eyebrow">Our Philosophy</span>
+      <h3 style="font-family: var(--serif); font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 20px;">Slow Crafted, Smart Served</h3>
+      <p style="font-size: 14px; line-height: 1.7; color: var(--ink-60); font-weight: 300;">
+        From our organic soil-association partners to our custom copper fermenting tanks, every step of our process is tracked, tested, and optimized. We fuse active plant botanicals with clean interfaces to create functional cafes that inspire focus, calm, and connection.
+      </p>
+    </div>
+  </section>
+</div>
+{% endblock %}

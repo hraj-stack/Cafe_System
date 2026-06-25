@@ -1,0 +1,659 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- HRD Menu Hero -->
+<div class="page-hero" style="text-align: center; padding: 100px var(--container-pad) 80px;">
+  <div class="page-hero-eyebrow">Our Selections</div>
+  <h1 class="page-hero-title">HRD <em>Menu</em></h1>
+  <p class="page-hero-sub">Pure botanical ingredients, organic ferments, and custom roasted profiles.</p>
+</div>
+
+<div class="menu-page" style="background: var(--cream); padding: var(--space-3xl) 0;">
+  <div class="container">
+    
+    {% if categories %}
+      <!-- Quick Category Filters -->
+      <div class="menu-filters-container" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 40px; position: sticky; top: 0; z-index: 100; background: var(--cream); padding: 15px 0; border-bottom: 1px solid var(--sand);">
+        <button class="filter-chip active" data-filter="all" style="background: var(--olive); color: var(--cream); border: 1px solid var(--olive); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">All</button>
+        <button class="filter-chip" data-filter="Coffee Drinks" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Coffee</button>
+        <button class="filter-chip" data-filter="Tea" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Tea</button>
+        <button class="filter-chip" data-filter="Cold Drinks" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Cold Drinks</button>
+        <button class="filter-chip" data-filter="Desserts" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Desserts</button>
+        <button class="filter-chip" data-filter="Snacks" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Snacks</button>
+        <button class="filter-chip" data-filter="Breakfast" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Breakfast</button>
+        <button class="filter-chip" data-filter="Combos" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Combos</button>
+        <button class="filter-chip" data-filter="Salads" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Salads</button>
+        <button class="filter-chip" data-filter="Soups" style="background: transparent; color: var(--ink); border: 1px solid var(--sand); border-radius: 20px; padding: 8px 20px; font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.3s var(--ease);">Soups</button>
+      </div>
+
+      <!-- 3-Column Workspace Grid Layout -->
+      <div class="menu-layout-grid">
+        
+        <!-- Column 1: Book a Seat Card -->
+        <div style="display: flex; flex-direction: column; gap: 40px;">
+          <a href="{{ url_for('customer.book_slot') }}" class="book-seat-wrapper" style="text-decoration: none; color: inherit; display: block;">
+            <div class="card book-seat-card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); padding: 30px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease); cursor: pointer;">
+              <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--olive);"></div>
+              
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <span style="font-size: 24px;">🪑</span>
+                <h2 style="font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--ink); margin: 0; letter-spacing: -0.01em;">Reserve Your Spot ☕</h2>
+              </div>
+              
+              <p style="font-family: var(--sans); font-size: 13px; line-height: 1.6; color: var(--ink-60); margin: 0 0 20px 0;">
+                Choose exactly where you'd like to sit before ordering:
+              </p>
+              
+              <ul style="list-style: none; padding: 0; margin: 0 0 24px 0; display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--ink-80);">
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 16px;">🪟</span>
+                  <span>Window Seats</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 16px;">☕</span>
+                  <span>Coffee Bar Seats</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 16px;">🤫</span>
+                  <span>Quiet Corner Tables</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 16px;">🏠</span>
+                  <span>Center Tables</span>
+                </li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                  <span style="font-size: 16px;">🌿</span>
+                  <span>Outdoor Seating</span>
+                </li>
+              </ul>
+
+              <!-- Dynamic Availability Indicator -->
+              <div id="availability-indicator" style="background: var(--fog); padding: 12px; border-radius: var(--r); margin-bottom: 24px; font-size: 12px; font-weight: 600; text-align: center; border: 1px solid var(--sand); display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--ink-60); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em;">
+                <span class="pulse-dot" style="display: inline-block; width: 8px; height: 8px; background: #c9a227; border-radius: 50%;"></span>
+                <span>Checking seats...</span>
+              </div>
+              
+              <span class="form-submit" style="display: block; text-align: center; text-decoration: none; font-size: 14px; font-weight: 700; padding: 12px; transition: background 0.2s var(--ease);">Book a Seat</span>
+            </div>
+          </a>
+        </div>
+
+        <!-- Column 2: Menu Categories (Grid columns) -->
+        <div class="menu-categories-grid">
+          <!-- Column 2.1: Left Column -->
+          <div style="display: flex; flex-direction: column; gap: 40px;">
+            {% set colors = {'Coffee Drinks': 'var(--olive)', 'Tea': 'var(--sage)', 'Cold Drinks': 'var(--yellow)', 'Desserts': 'var(--clay)', 'Snacks': 'var(--amber)', 'Breakfast': 'var(--olive)', 'Combos': 'var(--yellow)', 'Salads': 'var(--amber)', 'Soups': 'var(--yellow)'} %}
+            {% for cat_name, items in categories.items() %}
+              {% if loop.index0 % 2 == 0 %}
+                <div class="card category-card" data-category="{{ cat_name }}" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); padding: 40px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);">
+                  <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: {{ colors.get(cat_name, 'var(--sand)') }};"></div>
+                  <h2 style="font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--ink); margin-bottom: 32px; border-bottom: 2px solid var(--sand); padding-bottom: 12px; letter-spacing: -0.01em;">
+                    {{ cat_name }}
+                  </h2>
+                  <div style="display: flex; flex-direction: column; gap: 28px;">
+                    {% for item in items %}
+                      <div class="menu-item-row" style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+                          <span class="menu-item-name-hover" data-name="{{ item.name }}" data-image="{{ url_for('static', filename='images/menu_previews/' ~ get_slug(item.name) ~ '.jpg') }}" data-desc="{{ item.description }}" style="font-family: var(--serif); font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.2;">{{ item.name }}</span>
+                          <span style="flex-grow: 1; border-bottom: 1px dotted var(--sand); margin: 0 4px; height: 1px;"></span>
+                          <span style="font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--olive); white-space: nowrap;">₹{{ item.price|int }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                          <p style="font-family: var(--sans); font-size: 13px; line-height: 1.5; color: var(--ink-60); margin: 0;">{{ item.description }}</p>
+                          <button class="btn-icon add-to-cart-btn" data-id="{{ item.item_id }}" data-name="{{ item.name }}" data-price="{{ item.price }}" style="width: 28px; height: 28px; font-size: 14px; flex-shrink: 0; background: var(--ink); color: var(--cream);" aria-label="Add {{ item.name }} to cart">+</button>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+          <!-- Column 2.2: Right Column -->
+          <div style="display: flex; flex-direction: column; gap: 40px;">
+            {% set colors = {'Coffee Drinks': 'var(--olive)', 'Tea': 'var(--sage)', 'Cold Drinks': 'var(--yellow)', 'Desserts': 'var(--clay)', 'Snacks': 'var(--amber)', 'Breakfast': 'var(--olive)', 'Combos': 'var(--yellow)', 'Salads': 'var(--amber)', 'Soups': 'var(--yellow)'} %}
+            {% for cat_name, items in categories.items() %}
+              {% if loop.index0 % 2 == 1 %}
+                <div class="card category-card" data-category="{{ cat_name }}" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); padding: 40px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden; transition: opacity 0.35s var(--ease), transform 0.35s var(--ease);">
+                  <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: {{ colors.get(cat_name, 'var(--sand)') }};"></div>
+                  <h2 style="font-family: var(--serif); font-size: 28px; font-weight: 700; color: var(--ink); margin-bottom: 32px; border-bottom: 2px solid var(--sand); padding-bottom: 12px; letter-spacing: -0.01em;">
+                    {{ cat_name }}
+                  </h2>
+                  <div style="display: flex; flex-direction: column; gap: 28px;">
+                    {% for item in items %}
+                      <div class="menu-item-row" style="display: flex; flex-direction: column; gap: 6px;">
+                        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px;">
+                          <span class="menu-item-name-hover" data-name="{{ item.name }}" data-image="{{ url_for('static', filename='images/menu_previews/' ~ get_slug(item.name) ~ '.jpg') }}" data-desc="{{ item.description }}" style="font-family: var(--serif); font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.2;">{{ item.name }}</span>
+                          <span style="flex-grow: 1; border-bottom: 1px dotted var(--sand); margin: 0 4px; height: 1px;"></span>
+                          <span style="font-family: var(--mono); font-size: 15px; font-weight: 500; color: var(--olive); white-space: nowrap;">₹{{ item.price|int }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                          <p style="font-family: var(--sans); font-size: 13px; line-height: 1.5; color: var(--ink-60); margin: 0;">{{ item.description }}</p>
+                          <button class="btn-icon add-to-cart-btn" data-id="{{ item.item_id }}" data-name="{{ item.name }}" data-price="{{ item.price }}" style="width: 28px; height: 28px; font-size: 14px; flex-shrink: 0; background: var(--ink); color: var(--cream);" aria-label="Add {{ item.name }} to cart">+</button>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Column 3: Cart Sticky Panel -->
+        <div style="position: sticky; top: 40px; z-index: 10;">
+          <div class="card" style="background: var(--cream); border: 1px solid var(--sand); border-radius: var(--r-card); padding: 30px; box-shadow: var(--shadow-sm); position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: var(--amber);"></div>
+            <h2 style="font-family: var(--serif); font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 20px; border-bottom: 2px solid var(--sand); padding-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+              <span>Your Cart</span>
+              <span id="cart-count" style="font-family: var(--mono); font-size: 12px; background: var(--olive); color: var(--cream); padding: 2px 8px; border-radius: 10px;">0</span>
+            </h2>
+            
+            <!-- Items list -->
+            <div id="cart-list" style="display: flex; flex-direction: column; gap: 16px; max-height: 240px; overflow-y: auto; margin-bottom: 20px; padding-right: 4px;">
+              <p style="font-size: 13px; color: var(--ink-45); text-align: center; margin: 20px 0;">Your cart is empty.</p>
+            </div>
+
+            <!-- Detailed Summary (Subtotal, GST, Total) -->
+            <div style="border-top: 1px solid var(--sand); padding-top: 16px; margin-bottom: 24px; display: flex; flex-direction: column; gap: 10px; font-size: 13px; color: var(--ink-60);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Subtotal:</span>
+                <span id="cart-subtotal">₹0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span>GST (5%):</span>
+                <span id="cart-gst">₹0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--sand); padding-top: 12px; font-family: var(--serif); font-size: 18px; font-weight: 700; color: var(--ink);">
+                <span>Total:</span>
+                <span id="cart-total">₹0</span>
+              </div>
+            </div>
+
+            <button id="checkout-btn" class="form-submit" style="width: 100%;" disabled>Place Order</button>
+          </div>
+        </div>
+
+      </div>
+    {% else %}
+      <div style="text-align: center; color: var(--ink-45); padding: 80px 0;">
+        <p style="font-size: 15px; font-weight: 300;">Our seasonal menu is currently being compiled. Please visit us again shortly.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- Glassmorphic Image Preview Popup -->
+<div id="image-preview-popup" class="image-preview-popup">
+  <div class="popup-content">
+    <img id="popup-img" src="" alt="Menu item image preview">
+    <div class="popup-info">
+      <div id="popup-title"></div>
+      <div id="popup-desc"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Premium 3-Column Responsive Layout */
+  .menu-layout-grid {
+    display: grid;
+    grid-template-columns: 260px 1fr 300px;
+    gap: 32px;
+    align-items: start;
+  }
+  .menu-categories-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .book-seat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md) !important;
+  }
+
+  @keyframes pulse {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+  }
+  .pulse-dot {
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+
+  @media (max-width: 1400px) {
+    .menu-layout-grid {
+      grid-template-columns: 1fr 300px;
+      gap: 28px;
+    }
+    .menu-layout-grid > div:first-child {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .menu-layout-grid {
+      grid-template-columns: 1fr 280px;
+      gap: 24px;
+    }
+    .menu-layout-grid > div:first-child {
+      grid-column: span 2;
+    }
+    .menu-categories-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .menu-layout-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .menu-layout-grid > div:first-child {
+      grid-column: span 1;
+    }
+    .menu-categories-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+
+  /* Interactive menu item style */
+  .menu-item-name-hover {
+    cursor: pointer;
+    transition: color 0.2s var(--ease);
+  }
+  .menu-item-name-hover:hover {
+    color: var(--olive);
+  }
+
+  /* Premium Glassmorphic Popup Styles */
+  .image-preview-popup {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.25s;
+    background: rgba(253, 251, 247, 0.8);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid rgba(28, 26, 20, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(28, 26, 20, 0.12);
+    width: 240px;
+    overflow: hidden;
+  }
+
+  .image-preview-popup.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .popup-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #popup-img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+    background-color: var(--fog);
+    border-bottom: 1px solid rgba(28, 26, 20, 0.08);
+  }
+
+  .popup-info {
+    padding: 12px;
+  }
+
+  #popup-title {
+    font-family: var(--serif);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  #popup-desc {
+    font-family: var(--sans);
+    font-size: 11px;
+    line-height: 1.4;
+    color: var(--ink-60);
+  }
+
+  /* Quick Category Filter Chip Styles */
+  .filter-chip {
+    transition: all 0.3s var(--ease);
+  }
+  .filter-chip:hover {
+    background: rgba(74, 92, 58, 0.08) !important;
+    border-color: var(--olive) !important;
+    color: var(--olive) !important;
+    transform: translateY(-1px);
+  }
+  .filter-chip.active {
+    background: var(--olive) !important;
+    border-color: var(--olive) !important;
+    color: var(--cream) !important;
+    transform: scale(1.05);
+  }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const isAuthenticated = {{ 'true' if current_user.is_authenticated else 'false' }};
+    let cart = JSON.parse(localStorage.getItem('cafe_cart')) || [];
+
+    const cartList = document.getElementById('cart-list');
+    const cartSubtotal = document.getElementById('cart-subtotal');
+    const cartGst = document.getElementById('cart-gst');
+    const cartTotal = document.getElementById('cart-total');
+    const cartCount = document.getElementById('cart-count');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    function saveCart() {
+      localStorage.setItem('cafe_cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function renderCart() {
+      if (!cartList) return;
+      
+      if (cart.length === 0) {
+        cartList.innerHTML = `<p style="font-size: 13px; color: var(--ink-45); text-align: center; margin: 20px 0;">Your cart is empty.</p>`;
+        cartSubtotal.textContent = '₹0';
+        cartGst.textContent = '₹0';
+        cartTotal.textContent = '₹0';
+        cartCount.textContent = '0';
+        checkoutBtn.disabled = true;
+        return;
+      }
+
+      let subtotal = 0;
+      let count = 0;
+      cartList.innerHTML = '';
+
+      cart.forEach(item => {
+        subtotal += item.price * item.quantity;
+        count += item.quantity;
+
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.style.alignItems = 'center';
+        row.style.fontSize = '13px';
+        row.style.borderBottom = '1px solid rgba(28, 26, 20, 0.05)';
+        row.style.paddingBottom = '8px';
+
+        row.innerHTML = `
+          <div style="flex-grow: 1; padding-right: 12px;">
+            <div style="font-weight: 500; color: var(--ink);">${item.name}</div>
+            <div style="color: var(--ink-45); font-size: 11px;">₹${item.price} each</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="dec-qty btn-icon" data-id="${item.id}" style="width: 20px; height: 20px; font-size: 12px; background: var(--fog); color: var(--ink);">-</button>
+            <span style="font-family: var(--mono); min-width: 14px; text-align: center;">${item.quantity}</span>
+            <button class="inc-qty btn-icon" data-id="${item.id}" style="width: 20px; height: 20px; font-size: 12px; background: var(--fog); color: var(--ink);">+</button>
+          </div>
+        `;
+        cartList.appendChild(row);
+      });
+
+      const gst = Math.round(subtotal * 0.05);
+      const total = subtotal + gst;
+
+      cartSubtotal.textContent = `₹${subtotal}`;
+      cartGst.textContent = `₹${gst}`;
+      cartTotal.textContent = `₹${total}`;
+      cartCount.textContent = count;
+      checkoutBtn.disabled = false;
+
+      // Bind +/- buttons
+      document.querySelectorAll('.dec-qty').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.getAttribute('data-id'));
+          const item = cart.find(x => x.id === id);
+          if (item) {
+            item.quantity--;
+            if (item.quantity <= 0) {
+              cart = cart.filter(x => x.id !== id);
+            }
+            saveCart();
+          }
+        });
+      });
+
+      document.querySelectorAll('.inc-qty').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = parseInt(btn.getAttribute('data-id'));
+          const item = cart.find(x => x.id === id);
+          if (item) {
+            item.quantity++;
+            saveCart();
+          }
+        });
+      });
+    }
+
+    // Add to cart buttons
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = parseInt(btn.getAttribute('data-id'));
+        const name = btn.getAttribute('data-name');
+        const price = parseFloat(btn.getAttribute('data-price'));
+
+        const existing = cart.find(x => x.id === id);
+        if (existing) {
+          existing.quantity++;
+        } else {
+          const dateStr = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+          cart.push({ id, name, price, quantity: 1, dateAdded: dateStr });
+        }
+        saveCart();
+
+        // Visual feedback micro-animation on "+" button
+        btn.style.transform = 'scale(0.85)';
+        setTimeout(() => btn.style.transform = 'none', 100);
+      });
+    });
+
+    // Checkout handler
+    checkoutBtn.addEventListener('click', () => {
+      if (!isAuthenticated) {
+        alert('Please log in or register to place an order.');
+        window.location.href = "{{ url_for('auth.login') }}";
+        return;
+      }
+
+      const orderItems = cart.map(x => ({
+        menu_item_id: x.id,
+        quantity: x.quantity
+      }));
+
+      checkoutBtn.disabled = true;
+      checkoutBtn.textContent = 'Processing...';
+
+      fetch("{{ url_for('orders.place_order') }}", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ items: orderItems })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert('Order placed successfully! 10 loyalty points earned.');
+          cart = [];
+          saveCart();
+          window.location.href = "{{ url_for('customer.dashboard') }}";
+        } else {
+          alert('Failed to place order: ' + data.message);
+          checkoutBtn.disabled = false;
+          checkoutBtn.textContent = 'Place Order';
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('An error occurred during order submission.');
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Place Order';
+      });
+    });
+
+    // Initial render
+    renderCart();
+
+    // Fetch live table availability stats for today at 12:00 PM
+    const indicator = document.getElementById('availability-indicator');
+    if (indicator) {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+
+      fetch(`/customer/booked-tables?date=${dateStr}&time=12:00`)
+        .then(res => res.json())
+        .then(data => {
+          const booked = data.booked_tables || [];
+          const totalTables = 22;
+          const available = Math.max(0, totalTables - booked.length);
+          indicator.innerHTML = `
+            <span class="pulse-dot" style="display: inline-block; width: 8px; height: 8px; background: #7a9a6a; border-radius: 50%;"></span>
+            <span>${available} Seats Available Today</span>
+          `;
+        })
+        .catch(err => {
+          console.error(err);
+          indicator.innerHTML = `
+            <span class="pulse-dot" style="display: inline-block; width: 8px; height: 8px; background: #7a9a6a; border-radius: 50%;"></span>
+            <span>22 Seats Available Today</span>
+          `;
+        });
+    }
+
+    // Dynamic Menu Category Filtering
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const categoryCards = document.querySelectorAll('.category-card');
+
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach(c => {
+          c.classList.remove('active');
+          c.style.background = 'transparent';
+          c.style.color = 'var(--ink)';
+          c.style.borderColor = 'var(--sand)';
+        });
+        chip.classList.add('active');
+        chip.style.background = 'var(--olive)';
+        chip.style.color = 'var(--cream)';
+        chip.style.borderColor = 'var(--olive)';
+
+        const filter = chip.getAttribute('data-filter');
+
+        categoryCards.forEach(card => {
+          const cardCat = card.getAttribute('data-category');
+          if (filter === 'all' || cardCat === filter) {
+            card.style.display = 'block';
+            void card.offsetWidth; // Trigger reflow for transition
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+          } else {
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              if (card.style.opacity === '0') {
+                card.style.display = 'none';
+              }
+            }, 350);
+          }
+        });
+      });
+    });
+
+    // Menu Item Hover Image Preview logic
+    const popup = document.getElementById('image-preview-popup');
+    const popupImg = document.getElementById('popup-img');
+    const popupTitle = document.getElementById('popup-title');
+    const popupDesc = document.getElementById('popup-desc');
+    
+    document.querySelectorAll('.menu-item-name-hover').forEach(item => {
+      item.addEventListener('mouseenter', (e) => {
+        const name = item.getAttribute('data-name');
+        const img = item.getAttribute('data-image');
+        const desc = item.getAttribute('data-desc');
+        
+        popupImg.src = img;
+        popupTitle.textContent = name;
+        popupDesc.textContent = desc || '';
+        
+        popup.classList.add('show');
+        updatePosition(e);
+      });
+      
+      item.addEventListener('mousemove', (e) => {
+        updatePosition(e);
+      });
+      
+      item.addEventListener('mouseleave', () => {
+        popup.classList.remove('show');
+      });
+    });
+    
+    function updatePosition(e) {
+      const offset = 15;
+      let x = e.clientX + offset;
+      let y = e.clientY - popup.offsetHeight - offset;
+      
+      // Prevent overflow right
+      if (x + popup.offsetWidth > window.innerWidth) {
+        x = e.clientX - popup.offsetWidth - offset;
+      }
+      // Prevent overflow left
+      if (x < 0) {
+        x = offset;
+      }
+      
+      // Prevent overflow top (show below cursor)
+      if (y < 0) {
+        y = e.clientY + offset;
+      }
+      // Prevent overflow bottom
+      if (y + popup.offsetHeight > window.innerHeight) {
+        y = window.innerHeight - popup.offsetHeight - offset;
+      }
+      
+      popup.style.left = `${x}px`;
+      popup.style.top = `${y}px`;
+    }
+
+    // Preload menu preview images when browser is idle to ensure instant hover response
+    if ('requestIdleCallback' in window) {
+      window.requestIdleCallback(() => preloadMenuImages());
+    } else {
+      window.addEventListener('load', () => setTimeout(preloadMenuImages, 1000));
+    }
+    
+    function preloadMenuImages() {
+      document.querySelectorAll('.menu-item-name-hover').forEach(item => {
+        const imgUrl = item.getAttribute('data-image');
+        if (imgUrl) {
+          const img = new Image();
+          img.src = imgUrl;
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

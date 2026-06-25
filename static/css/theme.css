@@ -1,0 +1,215 @@
+/* ═══════════════════════════════════════════════════════════════
+   HRD DESIGN SYSTEM — theme.css
+   Global design tokens. Import this first on every page.
+   <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+ ═══════════════════════════════════════════════════════════════ */
+
+/* ── GOOGLE FONTS (also add to your base HTML <head>) ── */
+/* <link rel="preconnect" href="https://fonts.googleapis.com"> */
+/* <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet"> */
+
+
+/* ══════════════════════════════════════
+   DESIGN TOKENS
+ ══════════════════════════════════════ */
+:root {
+  /* ── COLOR PALETTE ── */
+  --ink:    #1c1a14;   /* near-black, primary text & dark backgrounds */
+  --cream:  #f5f0e6;   /* warm off-white, default page background     */
+  --olive:  #4a5c3a;   /* deep forest green, primary brand accent      */
+  --amber:  #c8602a;   /* burnt orange, secondary accent & CTA         */
+  --yellow: #c9a227;   /* warm gold, highlights & star ratings         */
+  --fog:    #e4dfd2;   /* light warm grey, card/section backgrounds    */
+  --sage:   #7a9a6a;   /* muted green, italic brand accents            */
+  --clay:   #9e3d28;   /* deep clay red, tertiary accent               */
+  --sand:   #d4c9b0;   /* mid-tone sand, borders & dividers            */
+
+  /* ── DERIVED ALPHA COLORS (for common use without rgba()) ── */
+  --ink-60:  rgba(28, 26, 20, 0.60);
+  --ink-45:  rgba(28, 26, 20, 0.45);
+  --ink-30:  rgba(28, 26, 20, 0.30);
+  --ink-10:  rgba(28, 26, 20, 0.10);
+  --cream-70: rgba(245, 240, 230, 0.70);
+  --cream-55: rgba(245, 240, 230, 0.55);
+  --cream-35: rgba(245, 240, 230, 0.35);
+
+  /* ── TYPOGRAPHY ── */
+  --serif:  'Playfair Display', Georgia, serif;
+  --sans:   'DM Sans', system-ui, sans-serif;
+  --mono:   'DM Mono', monospace;
+
+  /* ── TYPE SCALE ── */
+  --text-xs:   9px;
+  --text-sm:   11px;
+  --text-base: 13px;
+  --text-md:   15px;
+  --text-lg:   16px;
+
+  /* Fluid heading sizes (use clamp) */
+  --h1: clamp(52px, 5.5vw, 82px);
+  --h2: clamp(36px, 3.5vw, 52px);
+  --h3: clamp(28px, 3.8vw, 54px);
+  --h4: clamp(22px, 2.5vw, 32px);
+
+  /* ── SPACING ── */
+  --space-xs:  16px;
+  --space-sm:  24px;
+  --space-md:  32px;
+  --space-lg:  48px;
+  --space-xl:  64px;
+  --space-2xl: 80px;
+  --space-3xl: 120px;
+  --space-4xl: 140px;
+
+  /* ── LAYOUT ── */
+  --container-max: 1440px;
+  --container-pad: 64px;
+  --nav-width:     56px;   /* side nav collapsed width */
+
+  /* ── EFFECTS ── */
+  --ease:   cubic-bezier(0.22, 1, 0.36, 1);
+  --r:      4px;    /* base border-radius */
+  --r-card: 8px;    /* card border-radius */
+  --r-pill: 12px;   /* pill border-radius */
+
+  /* ── SHADOWS ── */
+  --shadow-sm:  0 4px 12px rgba(28, 26, 20, 0.08);
+  --shadow-md:  0 12px 32px rgba(28, 26, 20, 0.12);
+  --shadow-lg:  0 24px 60px rgba(28, 26, 20, 0.18);
+  --shadow-card: 0 20px 50px rgba(28, 26, 20, 0.10);
+}
+
+
+/* ══════════════════════════════════════
+   RESET & BASE
+ ══════════════════════════════════════ */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 300;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  padding-left: var(--nav-width); /* offset for the fixed side nav */
+}
+img { display: block; max-width: 100%; }
+a  { text-decoration: none; color: inherit; }
+button { cursor: pointer; }
+
+
+/* ── GRAIN OVERLAY (applied to every page body) ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 200; pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+
+/* ══════════════════════════════════════
+   LAYOUT UTILITIES
+ ══════════════════════════════════════ */
+.container       { max-width: var(--container-max); margin: 0 auto; padding: 0 var(--container-pad); }
+.container--wide { max-width: var(--container-max); margin: 0 auto; padding: 0 48px; }
+
+/* Standard section padding */
+.section { padding: var(--space-3xl) 0; }
+.section--dark  { background: var(--ink); }
+.section--cream { background: var(--cream); }
+.section--fog   { background: var(--fog); }
+.section--olive { background: var(--olive); }
+.section--amber { background: var(--amber); }
+
+
+/* ══════════════════════════════════════
+   SCROLL REVEAL ANIMATION
+   Add .reveal to any element you want animated in.
+   JS handles adding .visible when in viewport.
+ ══════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.85s var(--ease), transform 0.85s var(--ease);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+.reveal-delay-1 { transition-delay: 0.10s; }
+.reveal-delay-2 { transition-delay: 0.20s; }
+.reveal-delay-3 { transition-delay: 0.30s; }
+.reveal-delay-4 { transition-delay: 0.40s; }
+
+
+/* ══════════════════════════════════════
+   RESPONSIVE BREAKPOINTS
+ ══════════════════════════════════════ */
+@media (max-width: 768px) {
+  :root {
+    --container-pad: 20px;
+    --space-3xl: 80px;
+    --space-4xl: 80px;
+  }
+  body { padding-left: 0; padding-bottom: 56px; } /* bottom nav on mobile */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ══════════════════════════════════════
+   DARK MODE
+   Coffee brown background, cream accents
+ ══════════════════════════════════════ */
+body {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body.dark-theme {
+  --ink:    #f5f0e6;   /* warm cream text */
+  --cream:  #19120c;   /* rich dark coffee brown background */
+  --fog:    #2a1f16;   /* deep coffee brown for card backdrops */
+  --sand:   #403126;   /* dark coffee brown borders */
+  
+  --ink-60:  rgba(245, 240, 230, 0.60);
+  --ink-45:  rgba(245, 240, 230, 0.45);
+  --ink-30:  rgba(245, 240, 230, 0.30);
+  --ink-10:  rgba(245, 240, 230, 0.10);
+  
+  --cream-70: rgba(28, 26, 20, 0.70);
+  --cream-55: rgba(28, 26, 20, 0.55);
+  --cream-35: rgba(28, 26, 20, 0.35);
+}
+
+/* Ensure inputs, select lists, and scrollbars adjust to dark mode */
+body.dark-theme input,
+body.dark-theme select,
+body.dark-theme textarea {
+  background: var(--fog) !important;
+  color: var(--ink) !important;
+  border-color: var(--sand) !important;
+}
+
+body.dark-theme .card,
+body.dark-theme .book-seat-card {
+  background: var(--fog) !important;
+  border-color: var(--sand) !important;
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+  background: rgba(245, 240, 230, 0.2) !important;
+}
+
